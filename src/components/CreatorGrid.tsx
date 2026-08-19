@@ -1,0 +1,3 @@
+import Image from "next/image";
+import { creatorCategories } from "@/data/site";
+export default function CreatorGrid({landing=false}:{landing?:boolean}){return <div className={landing?"creator-landing-grid":"creator-grid"}>{creatorCategories.map((c)=><article key={c.title} className={landing?"creator-landing-card":"creator-card"} data-reveal><Image src={c.image} alt={`Representative Kenyan ${c.title.toLowerCase()} creator`} fill sizes={landing?"(max-width: 640px) 78vw, (max-width: 900px) 50vw, 25vw":"(max-width: 640px) 76vw, (max-width: 900px) 50vw, 25vw"}/><div><strong>{c.title}</strong><span>{c.detail}</span></div></article>)}</div>}
