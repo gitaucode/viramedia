@@ -8,6 +8,13 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "VIRA_DB",
+      "database_name": "vira-creators",
+      "database_id": "a1af07f4-40b7-4a31-a536-1f36b7b0de6b"
+    }
+  ],
   "observability": {
     "enabled": true
   }
