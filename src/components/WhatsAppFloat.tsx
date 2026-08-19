@@ -1,0 +1,2 @@
+import { contact } from "@/data/site";
+export default function WhatsAppFloat(){const text=encodeURIComponent("Hi Vira, I'd like to discuss short-form content or a creator campaign for my brand.");return <a className="whatsapp-float" href={`https://wa.me/${contact.whatsapp}?text=${text}`} target="_blank" rel="noopener noreferrer" aria-label="Chat with Vira Media on WhatsApp"><b>↗</b><span>WhatsApp Vira</span></a>}
