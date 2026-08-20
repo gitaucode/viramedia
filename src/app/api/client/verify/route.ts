@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server";
+import { verifyClientCode } from "@/lib/client-auth";
+export async function POST(request:Request){try{const b=await request.json();const email=String(b.email||'').trim(),code=String(b.code||'').trim();if(!email||!/^[0-9]{6}$/.test(code))return NextResponse.json({error:'Enter a valid 6-digit code'},{status:400});const r=await verifyClientCode(email,code);if(!r.ok)return NextResponse.json({error:r.reason==='EXPIRED'?'Code expired. Request a new one.':'Invalid sign-in code'},{status:400});return NextResponse.json({ok:true,client:r.client})}catch{return NextResponse.json({error:'Invalid request'},{status:400})}}
