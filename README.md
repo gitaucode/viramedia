@@ -1,66 +1,96 @@
 # Vira Media
 
-Next.js website for **Vira Media**, a Kenya-focused creator marketing and short-form creative agency.
+Vira Media is a Kenya-focused creator marketing and short-form creative agency supported by its own operating platform.
+
+## Product surfaces
+
+- **Vira Media website** — public brand and creator acquisition site.
+- **Vira Ops** — internal operations for leads, creators, clients, campaigns, deliverables, approvals, reporting and creator payments.
+- **Creator Portal** — creator access to assigned campaigns, deliverables, submissions, feedback and payment status.
+- **Client Portal** — client access to linked campaigns, shared content, approvals and reporting.
 
 ## Brand architecture
 
-- **Vira Media**: B2B agency for brands
-- **Vira Network**: vetted creator network for paid UGC and creator-led campaigns
+- **Vira Media** — B2B agency for brands.
+- **Vira Network** — vetted creator network for paid UGC and creator-led campaigns.
+- **Vira Ops** — the internal operating system used to run campaigns.
 
-V1 is intentionally manual. There is no CRM, marketplace, creator login, or database. Brand enquiries and creator applications are delivered by email for manual review.
+## Core workflow
 
-## Routes
+`Lead → Client → Campaign → Creator assignment → Deliverable → Creator submission → Internal review → Client review → Approval → Performance → Creator payment → Campaign report`
 
-- `/` brand-focused homepage
-- `/services` services for businesses
-- `/work` short-form campaign concepts / future case studies
-- `/creators` Vira Network landing page
-- `/creators/apply` five-step creator application wizard
+## Stack
+
+- Next.js 16
+- React 19
+- TypeScript
+- Cloudflare Workers
+- OpenNext for Cloudflare
+- Cloudflare D1
+- Resend
+- pdf-lib
+
+## Public routes
+
+- `/`
+- `/services`
+- `/work`
+- `/creators`
+- `/creators/apply`
 - `/about`
-- `/contact` brand campaign brief
+- `/contact`
 - `/privacy`
 - `/terms`
 
-## Run locally
+## Application routes
+
+- `/admin` — Vira Ops
+- `/portal` — Creator Portal
+- `/client` — Client Portal
+
+## Local development
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Useful checks:
 
-## Email forms
-
-Both the brand enquiry form and creator application POST to Next.js Route Handlers and send a formatted email using Resend.
-
-1. Copy `.env.example` to `.env.local`.
-2. Add your Resend API key.
-3. Set `VIRA_INBOX` to the inbox that should receive applications and briefs.
-4. Set `VIRA_FROM_EMAIL` to an address on a domain verified in Resend.
-5. Add the public phone, WhatsApp and email values.
-
-```env
-RESEND_API_KEY=
-VIRA_INBOX=hello@viramedia.co.ke
-VIRA_FROM_EMAIL="Vira Website <website@your-verified-domain.co.ke>"
-NEXT_PUBLIC_VIRA_WHATSAPP=254700000000
-NEXT_PUBLIC_VIRA_PHONE=+254700000000
-NEXT_PUBLIC_VIRA_EMAIL=hello@viramedia.co.ke
+```bash
+npm run typecheck
+npm run lint
+npm run build
 ```
 
-The code also accepts the previous `NOMA_*` environment variable names as fallbacks so an existing local configuration does not immediately break during the rename.
+## Environment
 
-## Creator workflow in V1
+Copy `.env.example` to `.env.local` for local development and provide the required values.
 
-Creator applies → Vira receives the application by email → manual review → approved creators can be tracked in a Google Sheet until manual coordination becomes a bottleneck.
+Production secrets such as the admin password and Resend API key should be configured as Cloudflare secrets/environment configuration and must not be committed.
 
-The wizard saves an unfinished draft in the browser's local storage and clears it after successful submission.
+## Database and deployment
 
-## Before launch
+The application uses Cloudflare D1 through the `VIRA_DB` binding and deploys to Cloudflare Workers through OpenNext.
 
-- Replace placeholder phone / WhatsApp values.
-- Use an email/domain you actually control.
-- Verify `VIRA_FROM_EMAIL` in Resend.
-- Replace representative campaign concepts with verified client work as it becomes available.
-- Have the privacy and terms pages reviewed for your final legal entity and production data practices.
+See [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) before changing production deployment or applying schema migrations.
+
+## Project documentation
+
+The maintained documentation lives in [`docs/`](./docs/README.md).
+
+Start with:
+
+- [Product](./docs/PRODUCT.md)
+- [Architecture](./docs/ARCHITECTURE.md)
+- [Workflows](./docs/WORKFLOWS.md)
+- [Data model](./docs/DATA_MODEL.md)
+- [API](./docs/API.md)
+- [Security](./docs/SECURITY.md)
+- [Deployment](./docs/DEPLOYMENT.md)
+- [Roadmap](./docs/ROADMAP.md)
+- [Progress tracker](./docs/PROGRESS.md)
+
+## Current development state
+
+Campaign Workspace V2 is being developed separately from production. Consult [docs/PROGRESS.md](./docs/PROGRESS.md) for the current release checkpoint, blockers and next actions.
