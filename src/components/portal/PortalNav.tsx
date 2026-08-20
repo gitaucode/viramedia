@@ -1,0 +1,2 @@
+"use client";
+export default function PortalNav(){async function logout(){await fetch('/api/portal/logout',{method:'POST'});location.href='/portal/login'}return <nav className="portal-nav"><div className="portal-nav-inner"><a className="portal-brand" href="/portal/dashboard">VIRA <span>NETWORK</span></a><div className="portal-nav-actions"><a href="/portal/dashboard">Dashboard</a><button onClick={()=>void logout()}>Log out</button></div></div></nav>}
