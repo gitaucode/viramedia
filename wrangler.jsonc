@@ -1,7 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "viramedia",
-  "main": ".open-next/worker.js",
+  "main": "worker.mjs",
   "compatibility_date": "2026-08-15",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
@@ -15,6 +15,12 @@
       "database_id": "a1af07f4-40b7-4a31-a536-1f36b7b0de6b"
     }
   ],
+  "vars": {
+    "VIRA_SITE_URL": "https://viramedia.stephen-gitau.workers.dev"
+  },
+  "triggers": {
+    "crons": ["0 5 * * *"]
+  },
   "observability": {
     "enabled": true
   }
