@@ -4,6 +4,7 @@ import { getOpsDb } from "@/lib/ops-db";
 
 const clean=(v:unknown,max=6000)=>typeof v==='string'?v.trim().slice(0,max):'';
 const num=(v:unknown)=>Math.max(0,Number(v)||0);
+const shareAllowed=new Set(['not_ready','awaiting_client','approved','changes_requested']);
 
 export async function GET(request:Request){
  if(!(await isAdminAuthenticated()))return NextResponse.json({error:'Unauthorized'},{status:401});
@@ -23,7 +24,13 @@ export async function PATCH(request:Request){
    return NextResponse.json({ok:true});
   }
   const deliverableId=Number(b.deliverableId);if(!Number.isInteger(deliverableId)||deliverableId<1)return NextResponse.json({error:'Invalid deliverable'},{status:400});
-  const owned=await db.prepare('SELECT 1 ok FROM deliverables WHERE id=? AND campaign_id=?').bind(deliverableId,campaignId).first();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
+  const owned=await db.prepare('SELECT status FROM deliverables WHERE id=? AND campaign_id=?').bind(deliverableId,campaignId).first<{status:string}>();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
+  if(b.kind==='share'){
+   const status=String(b.clientApprovalStatus||'');if(!shareAllowed.has(status))return NextResponse.json({error:'Invalid client approval status'},{status:400});
+   if(status==='awaiting_client'&&!['approved','done'].includes(owned.status))return NextResponse.json({error:'Approve the deliverable internally before sharing it with the client'},{status:400});
+   await db.prepare(`UPDATE deliverables SET client_approval_status=?,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(status,deliverableId).run();
+   return NextResponse.json({ok:true});
+  }
   await db.prepare(`INSERT INTO performance_metrics (deliverable_id,views,reach,impressions,likes,comments,shares,saves,clicks,conversions,spend,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(deliverable_id) DO UPDATE SET views=excluded.views,reach=excluded.reach,impressions=excluded.impressions,likes=excluded.likes,comments=excluded.comments,shares=excluded.shares,saves=excluded.saves,clicks=excluded.clicks,conversions=excluded.conversions,spend=excluded.spend,updated_at=CURRENT_TIMESTAMP`).bind(deliverableId,Math.round(num(b.views)),Math.round(num(b.reach)),Math.round(num(b.impressions)),Math.round(num(b.likes)),Math.round(num(b.comments)),Math.round(num(b.shares)),Math.round(num(b.saves)),Math.round(num(b.clicks)),Math.round(num(b.conversions)),num(b.spend)).run();
   return NextResponse.json({ok:true});
  }catch{return NextResponse.json({error:'Invalid request'},{status:400})}
