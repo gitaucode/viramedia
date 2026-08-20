@@ -8,9 +8,9 @@ import RevealInit from "@/components/RevealInit";
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAdmin = pathname.startsWith("/admin");
+  const isWorkspace = pathname.startsWith("/admin") || pathname.startsWith("/portal");
 
-  if (isAdmin) return <>{children}</>;
+  if (isWorkspace) return <>{children}</>;
 
   return <>
     <SiteNav />
