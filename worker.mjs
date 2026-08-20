@@ -1,0 +1,10 @@
+import openNextWorker from "./.open-next/worker.js";
+
+function esc(value){return String(value??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+async function sendCreatorEmail(env,to,subject,html){if(!env.RESEND_API_KEY||!env.VIRA_FROM_EMAIL)return false;const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${env.RESEND_API_KEY}`,"Content-Type":"application/json"},body:JSON.stringify({from:env.VIRA_FROM_EMAIL,to:[to],subject,html})});return r.ok}
+async function runDeadlineReminders(env){if(!env.VIRA_DB)return;const rows=(await env.VIRA_DB.prepare(`SELECT d.id,d.title,d.due_date,s.id campaign_id,s.name campaign_name,c.id creator_id,c.full_name,c.email FROM deliverables d JOIN shortlists s ON s.id=d.campaign_id JOIN creators c ON c.id=d.creator_id WHERE c.status='approved' AND d.status IN ('pending','in_progress','changes_requested') AND d.due_date IS NOT NULL AND date(d.due_date)=date('now','+1 day')`).all()).results||[];for(const row of rows){const key=`deadline:${row.id}:${row.due_date}`;const sent=await env.VIRA_DB.prepare("SELECT 1 ok FROM creator_notification_log WHERE notification_key=?").bind(key).first();if(sent)continue;const html=`<div style="font-family:Arial,sans-serif;max-width:600px"><h2>Deliverable due tomorrow</h2><p>Hi ${esc(row.full_name)}, this is a reminder that <strong>${esc(row.title)}</strong> for <strong>${esc(row.campaign_name)}</strong> is due on <strong>${esc(row.due_date)}</strong>.</p><p><a href="https://viramedia.stephen-gitau.workers.dev/portal/campaigns/${row.campaign_id}">Open Creator Portal</a></p></div>`;if(await sendCreatorEmail(env,row.email,`Due tomorrow — ${row.campaign_name}`,html)){await env.VIRA_DB.prepare("INSERT OR IGNORE INTO creator_notification_log (notification_key,creator_id,deliverable_id,kind) VALUES (?,?,?,'deadline_reminder')").bind(key,row.creator_id,row.id).run()}}}
+
+export default {
+ fetch(request,env,ctx){return openNextWorker.fetch(request,env,ctx)},
+ scheduled(controller,env,ctx){ctx.waitUntil(runDeadlineReminders(env))}
+};
