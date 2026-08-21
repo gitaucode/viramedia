@@ -3,6 +3,7 @@ import { getClientSession } from "@/lib/client-auth";
 import { getOpsDb } from "@/lib/ops-db";
 import { sendEmail,sendEmailTo } from "@/lib/email";
 
+type MetricTotals={views:number;reach:number;impressions:number;likes:number;comments:number;shares:number;saves:number;clicks:number;conversions:number;spend:number};
 const allowed=new Set(['approved','changes_requested']);
 const clean=(v:unknown,max=3000)=>typeof v==='string'?v.trim().slice(0,max):'';
 
@@ -14,7 +15,7 @@ export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){
  if(!campaign)return NextResponse.json({error:'Not found'},{status:404});
  const d=await db.prepare(`SELECT d.id,d.title,d.status,d.submission_url,d.client_approval_status,d.client_feedback,d.client_reviewed_at,c.full_name creator_name,COALESCE(pm.views,0) views,COALESCE(pm.reach,0) reach,COALESCE(pm.impressions,0) impressions,COALESCE(pm.likes,0) likes,COALESCE(pm.comments,0) comments,COALESCE(pm.shares,0) shares,COALESCE(pm.saves,0) saves,COALESCE(pm.clicks,0) clicks,COALESCE(pm.conversions,0) conversions,COALESCE(pm.spend,0) spend FROM deliverables d LEFT JOIN creators c ON c.id=d.creator_id LEFT JOIN performance_metrics pm ON pm.deliverable_id=d.id WHERE d.campaign_id=? AND d.client_approval_status!='not_ready' ORDER BY d.id`).bind(campaignId).all();
  const rows=(d.results||[]) as Array<Record<string,unknown>>;
- const totals=rows.reduce((a,r)=>({views:a.views+Number(r.views||0),reach:a.reach+Number(r.reach||0),impressions:a.impressions+Number(r.impressions||0),likes:a.likes+Number(r.likes||0),comments:a.comments+Number(r.comments||0),shares:a.shares+Number(r.shares||0),saves:a.saves+Number(r.saves||0),clicks:a.clicks+Number(r.clicks||0),conversions:a.conversions+Number(r.conversions||0),spend:a.spend+Number(r.spend||0)}),{views:0,reach:0,impressions:0,likes:0,comments:0,shares:0,saves:0,clicks:0,conversions:0,spend:0});
+ const totals=rows.reduce<MetricTotals>((a,r)=>({views:a.views+Number(r.views||0),reach:a.reach+Number(r.reach||0),impressions:a.impressions+Number(r.impressions||0),likes:a.likes+Number(r.likes||0),comments:a.comments+Number(r.comments||0),shares:a.shares+Number(r.shares||0),saves:a.saves+Number(r.saves||0),clicks:a.clicks+Number(r.clicks||0),conversions:a.conversions+Number(r.conversions||0),spend:a.spend+Number(r.spend||0)}),{views:0,reach:0,impressions:0,likes:0,comments:0,shares:0,saves:0,clicks:0,conversions:0,spend:0});
  return NextResponse.json({campaign,deliverables:rows,totals});
 }
 
