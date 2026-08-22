@@ -5,17 +5,17 @@ import { getCreatorSession } from "@/lib/creator-auth";
 import { getMediaBucket,parseByteRange } from "@/lib/media-storage";
 import { getOpsDb } from "@/lib/ops-db";
 
-type VersionAccess={id:number;deliverable_id:number;creator_id:number;source_type:string;r2_key:string|null;file_name:string|null;mime_type:string|null;file_size:number|null;campaign_id:number};
+type VersionAccess={id:number;deliverable_id:number;creator_id:number;source_type:string;r2_key:string|null;file_name:string|null;mime_type:string|null;file_size:number|null;campaign_id:number;client_submission_version_id:number|null};
 
 export async function GET(request:Request,{params}:{params:Promise<{versionId:string}>}){
   const {versionId}=await params,id=Number(versionId);if(!Number.isInteger(id)||id<1)return NextResponse.json({error:'Invalid submission version'},{status:400});
   const db=getOpsDb();if(!db)return NextResponse.json({error:'Database unavailable'},{status:503});
-  const version=await db.prepare(`SELECT sv.id,sv.deliverable_id,sv.creator_id,sv.source_type,sv.r2_key,sv.file_name,sv.mime_type,sv.file_size,d.campaign_id FROM submission_versions sv JOIN deliverables d ON d.id=sv.deliverable_id WHERE sv.id=?`).bind(id).first<VersionAccess>();
+  const version=await db.prepare(`SELECT sv.id,sv.deliverable_id,sv.creator_id,sv.source_type,sv.r2_key,sv.file_name,sv.mime_type,sv.file_size,d.campaign_id,d.client_submission_version_id FROM submission_versions sv JOIN deliverables d ON d.id=sv.deliverable_id WHERE sv.id=?`).bind(id).first<VersionAccess>();
   if(!version||version.source_type!=='r2'||!version.r2_key)return NextResponse.json({error:'Media not found'},{status:404});
 
   let allowed=await isAdminAuthenticated();
   if(!allowed){const creator=await getCreatorSession();allowed=Boolean(creator&&creator.id===version.creator_id)}
-  if(!allowed){const client=await getClientSession();if(client){const linked=await db.prepare('SELECT 1 ok FROM campaign_clients WHERE campaign_id=? AND client_id=?').bind(version.campaign_id,client.id).first<{ok:number}>();allowed=Boolean(linked)}}
+  if(!allowed){const client=await getClientSession();if(client&&version.client_submission_version_id===version.id){const linked=await db.prepare('SELECT 1 ok FROM campaign_clients WHERE campaign_id=? AND client_id=?').bind(version.campaign_id,client.id).first<{ok:number}>();allowed=Boolean(linked)}}
   if(!allowed)return NextResponse.json({error:'Unauthorized'},{status:401});
 
   const bucket=getMediaBucket();if(!bucket)return NextResponse.json({error:'Media storage is unavailable'},{status:503});
