@@ -1,12 +1,13 @@
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const CONFIG="wrangler.test.jsonc";
 const STATE=".wrangler/test-state";
-const NPX=process.platform==="win32"?"npx.cmd":"npx";
+const WRANGLER=fileURLToPath(new URL("../node_modules/wrangler/bin/wrangler.js",import.meta.url));
 
 function execSql(sql){
-  const result=spawnSync(NPX,["wrangler","d1","execute","vira-creators-test","--local","--config",CONFIG,"--persist-to",STATE,"--command",sql,"--json"],{encoding:"utf8",shell:false,env:{...process.env,CI:"true"}});
+  const result=spawnSync(process.execPath,[WRANGLER,"d1","execute","vira-creators-test","--local","--config",CONFIG,"--persist-to",STATE,"--command",sql,"--json"],{encoding:"utf8",shell:false,env:{...process.env,CI:"true"}});
   if(result.error)throw result.error;
   if(result.status!==0){process.stderr.write(result.stderr||"");process.exit(result.status??1)}
   const parsed=JSON.parse(result.stdout||"[]");
