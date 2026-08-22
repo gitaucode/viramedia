@@ -78,6 +78,17 @@ async function main() {
     const campaigns = (await response.json()).campaigns || [];
     assert(campaigns.length === 1 && campaigns[0].id === 1, "Canonical campaign migration did not preserve campaign ID 1");
 
+    response = await fetch(`${BASE}/api/admin/clients`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ action: "link", campaignId: 1, clientId: 1 }),
+    });
+    assert(response.ok, `Client campaign link failed with ${response.status}`);
+    response = await fetch(`${BASE}/api/admin/clients?campaignId=1`, { headers: { Cookie: cookie } });
+    assert(response.ok, `Linked client listing failed with ${response.status}`);
+    const linkedClients = (await response.json()).clients || [];
+    assert(linkedClients.length === 1 && linkedClients[0].id === 1, "campaign_clients foreign key did not survive campaign table rename");
+
     response = await fetch(`${BASE}/api/admin/campaign-creators`, {
       method: "POST",
       headers: auth,
