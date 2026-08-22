@@ -82,8 +82,11 @@ html[data-ops-theme="light"] .portal-shell{
 .theme-button{
   width:36px;
   height:36px;
-  display:grid;
-  place-items:center;
+  padding:0!important;
+  box-sizing:border-box;
+  display:grid!important;
+  place-items:center!important;
+  line-height:0!important;
   flex:0 0 auto;
   border:1px solid var(--app-line)!important;
   border-radius:999px!important;
@@ -92,9 +95,10 @@ html[data-ops-theme="light"] .portal-shell{
   cursor:pointer;
 }
 .theme-button:hover{color:var(--app-text)!important;background:var(--app-surface-2)!important;border-color:var(--app-line-strong)!important}
-.theme-button svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.theme-button.compact{width:32px;height:32px}
+.theme-button svg{display:block;width:17px;height:17px;margin:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.theme-button.compact{width:32px;height:32px;padding:0!important}
 .theme-button.compact svg{width:15px;height:15px}
+.admin-nav-actions .theme-button,.client-nav-actions .theme-button,.portal-nav-actions .theme-button{padding:0!important}
 .login-theme{position:fixed;top:20px;right:20px;z-index:80}
 
 /* App hierarchy */
@@ -133,19 +137,20 @@ html[data-ops-theme="light"] .portal-shell{
 .ops-form input,.ops-form textarea,.ops-form select,.ops-inline-form input,.ops-inline-form select,.review-box textarea,.payment-box input,.payment-box select,
 .workspace-field textarea,.workspace-field input,.workspace-field select,.assign-bar select,.metrics-list input,.finance-list input,.finance-list select,.report-form textarea,
 .client-card input,.client-form input,.client-form textarea,.client-form select,.client-review textarea,
-.portal-card input,.portal-form input,.portal-form textarea,.portal-form select{
+.portal-card input,.portal-form input,.portal-form textarea,.portal-form select,
+.report-selector select,.report-copy-form textarea,.report-content-head select,.metric-form input,.report-inline select{
   background:var(--app-surface-2)!important;
   color:var(--app-text)!important;
   border:1px solid var(--app-line-strong)!important;
   border-radius:var(--radius-control)!important;
 }
-input::placeholder,textarea::placeholder{color:var(--app-muted-2)}
-select{color-scheme:dark}
-html[data-ops-theme="light"] select{color-scheme:light}
-@media(prefers-color-scheme:light){html:not([data-ops-theme="dark"]) select{color-scheme:light}}
+.admin-shell input::placeholder,.admin-shell textarea::placeholder,.client-shell input::placeholder,.client-shell textarea::placeholder,.portal-shell input::placeholder,.portal-shell textarea::placeholder{color:var(--app-muted-2)}
+.admin-shell select,.client-shell select,.portal-shell select{color-scheme:dark}
+html[data-ops-theme="light"] .admin-shell select,html[data-ops-theme="light"] .client-shell select,html[data-ops-theme="light"] .portal-shell select{color-scheme:light}
+@media(prefers-color-scheme:light){html:not([data-ops-theme="dark"]) .admin-shell select,html:not([data-ops-theme="dark"]) .client-shell select,html:not([data-ops-theme="dark"]) .portal-shell select{color-scheme:light}}
 .ops-primary,.client-button,.portal-button{border-radius:var(--radius-control)!important;box-shadow:none!important}
 .ops-secondary,.client-secondary,.portal-secondary{background:var(--app-surface-3)!important;color:var(--app-text)!important;border-color:var(--app-line-strong)!important;border-radius:var(--radius-control)!important}
-.ops-form label,.workspace-field{color:var(--app-muted)!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important;font-weight:650!important}
+.ops-form label,.workspace-field,.client-card label,.client-form label,.portal-card label,.portal-form label,.report-selector label,.report-copy-form label,.report-content-head label,.metric-form label{color:var(--app-muted)!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important;font-weight:650!important}
 
 /* Ops overview */
 .admin-shell .ops-kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;border:0!important;background:transparent!important;margin-bottom:20px}
@@ -235,13 +240,72 @@ html[data-ops-theme="dark"] .status-cancelled,html[data-ops-theme="dark"] .statu
 .campaign-workspace .workspace-person,.campaign-workspace .assign-bar,.campaign-workspace .review-actions,.campaign-workspace .client-review-bar{border-color:var(--app-line)!important}
 .campaign-workspace .creator-roster article,.campaign-workspace .workspace-deliverables article,.campaign-workspace .review-list article{background:var(--app-surface-2)!important;border:0!important;border-radius:10px!important}
 
-/* Client + Creator portals */
-.client-panel,.portal-panel{overflow:hidden}
-.client-panel-head,.portal-panel-head{border-color:var(--app-line)!important}
-.client-panel-head span,.portal-panel-head span,.client-meta,.portal-meta,.client-content-card .creator,.deliverable-card .due{color:var(--app-muted)!important}
-.client-campaign,.portal-campaign,.portal-list-row{border-color:var(--app-line)!important}
-.client-campaign:hover,.portal-campaign:hover{background:var(--app-surface-2)!important}
-.client-summary p,.portal-brief p,.client-narrative p,.deliverable-card .instructions{color:var(--app-muted)!important}
+/* Theme-complete legacy Admin surfaces and overlays */
+.admin-shell .creator-drawer{
+  background:var(--app-surface)!important;
+  color:var(--app-text)!important;
+  border-left:1px solid var(--app-line-strong)!important;
+  box-shadow:-24px 0 64px rgba(0,0,0,.14);
+}
+.admin-shell .creator-drawer-backdrop{background:rgba(12,12,10,.58)!important;backdrop-filter:blur(2px)}
+.admin-shell .drawer-close{color:var(--app-muted)!important}
+.admin-shell .drawer-close:hover{color:var(--app-text)!important}
+.admin-shell .creator-handle,.admin-shell .drawer-copy{color:var(--app-muted)!important}
+.admin-shell .creator-facts{border-color:var(--app-line)!important}
+.admin-shell .creator-facts div{border-color:var(--app-line)!important}
+.admin-shell .creator-facts span{color:var(--app-muted-2)!important;text-transform:none!important;letter-spacing:0!important}
+.admin-shell .creator-facts strong{color:var(--app-text)!important}
+.admin-shell .drawer-section{border-top-color:var(--app-line)!important}
+.admin-shell .drawer-section>span,.admin-shell .admin-setup>span,.admin-shell .panel-head>span{color:var(--app-orange)!important;text-transform:none!important;letter-spacing:.02em!important}
+.admin-shell .drawer-section>a{color:var(--app-text)!important}
+.admin-shell .mini-pills span,.admin-shell .mini-pills b,.admin-shell .shortlist-buttons button{
+  background:var(--app-surface-2)!important;
+  border-color:var(--app-line)!important;
+  color:var(--app-text)!important;
+}
+.admin-shell .shortlist-buttons button:hover{border-color:var(--app-orange)!important}
+.admin-shell .table-title,.admin-shell .creator-table th,.admin-shell .creator-table td,.admin-shell .shortlist-row,.admin-shell .shortlist-empty{border-color:var(--app-line)!important}
+.admin-shell .table-title span,.admin-shell .creator-table th,.admin-shell .creator-table td>span,.admin-shell .shortlist-row span,.admin-shell .shortlist-empty span,.admin-shell .shortlist-row b{color:var(--app-muted)!important}
+.admin-shell .creator-table tbody tr:hover{background:var(--app-surface-2)!important}
+.admin-shell .empty-mark{border-color:var(--app-line-strong)!important;color:var(--app-orange)!important}
+.admin-shell .admin-search>span{color:var(--app-muted-2)!important}
+.admin-shell .admin-setup p,.admin-shell .panel-head p,.admin-shell .shortlist-empty p{color:var(--app-muted)!important}
+.admin-shell .deliverable-list,.admin-shell .deliverable-row{border-color:var(--app-line)!important}
+.admin-shell .deliverable-row span{color:var(--app-muted)!important}
+
+/* Reporting */
+.admin-shell .report-selector label,.admin-shell .report-copy-form label,.admin-shell .report-content-head label,.admin-shell .metric-form label{color:var(--app-muted)!important}
+.admin-shell .report-client,.admin-shell .metric-form{border-color:var(--app-line)!important}
+.admin-shell .report-client span,.admin-shell .report-content-head span{color:var(--app-muted)!important}
+.admin-shell .report-client button{color:#c85e5e!important}
+.admin-shell .report-link{color:var(--app-cyan)!important}
+.admin-shell .report-content{
+  background:var(--app-surface-2)!important;
+  color:var(--app-text)!important;
+  border:1px solid var(--app-line)!important;
+  border-radius:10px!important;
+}
+.admin-shell .report-content-head small{color:#b45d72!important}
+
+/* Client portal complete theme coverage */
+.client-shell .client-campaign,.client-shell .client-content-metrics div,.client-shell .client-review,.client-shell .client-narrative article{border-color:var(--app-line)!important}
+.client-shell .client-campaign p,.client-shell .client-help,.client-shell .client-meta,.client-shell .client-content-card .creator,.client-shell .client-content-metrics span,.client-shell .client-narrative p{color:var(--app-muted)!important}
+.client-shell .client-content-metrics div{background:var(--app-surface-2)!important;border-radius:8px}
+.client-shell .client-review textarea{background:var(--app-surface-2)!important;color:var(--app-text)!important;border-color:var(--app-line-strong)!important;border-radius:var(--radius-control)!important}
+.client-shell .client-review .changes{background:var(--app-surface-3)!important;color:var(--app-text)!important;border-color:var(--app-line-strong)!important;border-radius:var(--radius-control)!important}
+.client-shell .client-feedback{background:color-mix(in srgb,#f8e1e1 68%,var(--app-surface))!important;color:#8a3c3c!important;border-left-color:#c85e5e!important;border-radius:8px}
+html[data-ops-theme="dark"] .client-shell .client-feedback{background:#351f1f!important;color:#f0a0a0!important}
+@media(prefers-color-scheme:dark){html:not([data-ops-theme="light"]) .client-shell .client-feedback{background:#351f1f!important;color:#f0a0a0!important}}
+.client-shell .client-content-link,.client-shell .client-report-link{color:var(--app-cyan)!important}
+
+/* Creator portal complete theme coverage */
+.portal-shell .portal-campaign,.portal-shell .portal-list-row,.portal-shell .portal-form{border-color:var(--app-line)!important}
+.portal-shell .portal-campaign p,.portal-shell .portal-meta,.portal-shell .portal-list-row span,.portal-shell .portal-brief p,.portal-shell .deliverable-card .instructions,.portal-shell .portal-submission p{color:var(--app-muted)!important}
+.portal-shell .portal-submission{background:var(--app-surface-2)!important;border-color:var(--app-line)!important;border-radius:10px!important}
+.portal-shell .portal-submission a,.portal-shell .portal-money{color:var(--app-cyan)!important}
+.portal-shell .portal-feedback{background:color-mix(in srgb,#f8e1e1 68%,var(--app-surface))!important;color:#8a3c3c!important;border-left-color:#c85e5e!important;border-radius:8px}
+html[data-ops-theme="dark"] .portal-shell .portal-feedback{background:#351f1f!important;color:#f0a0a0!important}
+@media(prefers-color-scheme:dark){html:not([data-ops-theme="light"]) .portal-shell .portal-feedback{background:#351f1f!important;color:#f0a0a0!important}}
 
 /* Empty states */
 .admin-empty,.client-empty,.portal-empty{color:var(--app-muted)!important}
