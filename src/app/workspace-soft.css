@@ -1,0 +1,202 @@
+/* Calm workspace skin: applies only to Ops, client portal and creator portal. */
+.admin-shell,.client-shell,.portal-shell{
+  --app-bg:#11120f;
+  --app-surface:#171814;
+  --app-surface-2:#1d1e19;
+  --app-surface-3:#23241f;
+  --app-text:#f5f3ec;
+  --app-muted:#a4a39b;
+  --app-muted-2:#7f7e77;
+  --app-line:rgba(245,243,236,.08);
+  --app-line-strong:rgba(245,243,236,.13);
+  --app-shadow:0 10px 30px rgba(0,0,0,.12);
+  --app-orange:#ff5a1f;
+  --app-cyan:#25d9d4;
+  background:var(--app-bg)!important;
+  color:var(--app-text)!important;
+}
+
+html[data-ops-theme="light"] .admin-shell,
+html[data-ops-theme="light"] .client-shell,
+html[data-ops-theme="light"] .portal-shell{
+  --app-bg:#f5f5f1;
+  --app-surface:#ffffff;
+  --app-surface-2:#f9f9f6;
+  --app-surface-3:#efefe9;
+  --app-text:#1d1d1a;
+  --app-muted:#686861;
+  --app-muted-2:#8a8a82;
+  --app-line:rgba(24,24,20,.08);
+  --app-line-strong:rgba(24,24,20,.14);
+  --app-shadow:0 10px 30px rgba(32,32,25,.07);
+  --app-orange:#eb4d13;
+  --app-cyan:#087f7d;
+}
+
+@media (prefers-color-scheme: light){
+  html:not([data-ops-theme="dark"]) .admin-shell,
+  html:not([data-ops-theme="dark"]) .client-shell,
+  html:not([data-ops-theme="dark"]) .portal-shell{
+    --app-bg:#f5f5f1;
+    --app-surface:#ffffff;
+    --app-surface-2:#f9f9f6;
+    --app-surface-3:#efefe9;
+    --app-text:#1d1d1a;
+    --app-muted:#686861;
+    --app-muted-2:#8a8a82;
+    --app-line:rgba(24,24,20,.08);
+    --app-line-strong:rgba(24,24,20,.14);
+    --app-shadow:0 10px 30px rgba(32,32,25,.07);
+    --app-orange:#eb4d13;
+    --app-cyan:#087f7d;
+  }
+}
+
+/* Navigation */
+.admin-nav,.client-nav,.portal-nav{
+  background:color-mix(in srgb,var(--app-bg) 92%,transparent)!important;
+  border-bottom:1px solid var(--app-line)!important;
+  box-shadow:none!important;
+}
+.admin-brand,.client-brand,.portal-brand{color:var(--app-text)!important}
+.admin-nav-links a,.admin-nav-actions a,.admin-nav-actions button,.client-nav-actions,.portal-nav-actions{color:var(--app-muted)!important}
+.admin-nav-links a.active{background:var(--app-surface-3)!important;color:var(--app-text)!important}
+.admin-nav-links a:hover,.admin-nav-actions a:hover,.admin-nav-actions button:hover,.client-nav-actions a:hover,.portal-nav-actions a:hover{color:var(--app-text)!important}
+
+.theme-toggle{display:flex;align-items:center;gap:3px;padding:3px;background:var(--app-surface-3);border:1px solid var(--app-line);border-radius:999px}
+.theme-toggle button{border:0;background:transparent;color:var(--app-muted);padding:6px 9px;border-radius:999px;font-size:11px;font-weight:700;cursor:pointer}
+.theme-toggle button.active{background:var(--app-surface);color:var(--app-text);box-shadow:0 1px 5px rgba(0,0,0,.08)}
+.theme-toggle.compact button{padding:5px 7px;font-size:10px}
+
+/* App rhythm and hierarchy */
+.admin-workspace,.client-workspace,.portal-workspace{background:transparent!important}
+.admin-top,.client-top,.portal-top{padding-top:16px!important}
+.admin-top h1,.client-top h1,.portal-top h1{font-size:clamp(36px,4vw,52px)!important;line-height:1!important;color:var(--app-text)!important}
+.admin-top p,.client-top p,.portal-top p{font-size:15px!important;color:var(--app-muted)!important;max-width:680px}
+.admin-kicker,.client-kicker,.portal-kicker{color:var(--app-orange)!important;font-size:10px!important;letter-spacing:.08em!important}
+.client-kicker,.portal-kicker{color:var(--app-cyan)!important}
+
+/* Softer surfaces. Prefer separation by space rather than outlines. */
+.admin-login,.admin-setup,.creator-table-wrap,.shortlist-panel,.campaign-card,.workspace-panel,.deliverable-admin-card,.admin-submission,
+.client-card,.client-panel,.client-summary,.client-content-card,.client-narrative article,
+.portal-card,.portal-panel,.portal-brief,.deliverable-card,.portal-submission{
+  background:var(--app-surface)!important;
+  border:1px solid var(--app-line)!important;
+  color:var(--app-text)!important;
+  border-radius:12px!important;
+  box-shadow:none!important;
+}
+.campaign-card,.workspace-panel,.client-content-card,.deliverable-card{box-shadow:var(--app-shadow)!important}
+
+/* Remove the boxed-console feel from metric groups. */
+.admin-stats,.client-stats,.portal-stats,.client-metric-grid,.workspace-kpis{
+  border:0!important;
+  background:transparent!important;
+  gap:10px!important;
+  overflow:visible!important;
+}
+.admin-stats button,.client-stat,.portal-stat,.client-metric,.workspace-kpis>div{
+  background:var(--app-surface)!important;
+  border:1px solid var(--app-line)!important;
+  border-radius:10px!important;
+  color:var(--app-text)!important;
+}
+.admin-stats button{border-right:1px solid var(--app-line)!important}
+.admin-stats button.active{box-shadow:inset 0 -2px var(--app-orange)!important}
+
+/* Controls */
+.admin-login input,.admin-toolbar input,.admin-toolbar select,.shortlist-panel input,.drawer-section select,.drawer-section textarea,
+.ops-form input,.ops-form textarea,.ops-form select,.ops-inline-form input,.ops-inline-form select,.review-box textarea,.payment-box input,.payment-box select,
+.workspace-field textarea,.workspace-field input,.workspace-field select,.assign-bar select,.metrics-list input,.finance-list input,.finance-list select,.report-form textarea,
+.client-card input,.client-form input,.client-form textarea,.client-form select,.client-review textarea,
+.portal-card input,.portal-form input,.portal-form textarea,.portal-form select{
+  background:var(--app-surface-2)!important;
+  color:var(--app-text)!important;
+  border:1px solid var(--app-line-strong)!important;
+  border-radius:9px!important;
+}
+input::placeholder,textarea::placeholder{color:var(--app-muted-2)}
+select{color-scheme:dark}
+html[data-ops-theme="light"] select{color-scheme:light}
+@media(prefers-color-scheme:light){html:not([data-ops-theme="dark"]) select{color-scheme:light}}
+
+.ops-primary,.client-button,.portal-button{border-radius:9px!important;box-shadow:none!important}
+.ops-secondary,.client-secondary,.portal-secondary{background:var(--app-surface-3)!important;color:var(--app-text)!important;border-color:var(--app-line-strong)!important;border-radius:9px!important}
+
+/* Campaign list */
+.ops-campaign-grid{gap:18px!important}
+.campaign-card{min-height:200px!important;padding:26px!important}
+.campaign-card:hover{border-color:var(--app-line-strong)!important;box-shadow:0 12px 34px rgba(0,0,0,.13)!important;transform:translateY(-2px)}
+.campaign-card-top{color:var(--app-muted)!important}
+.campaign-card h2{font-size:28px!important;line-height:1.08!important;color:var(--app-text)!important}
+.campaign-card p{color:var(--app-muted)!important;font-size:13px!important}
+.campaign-meta{color:var(--app-muted-2)!important}
+
+/* Friendlier status pills */
+.status-pill,.client-status,.portal-status,.payment-pill{border-radius:999px!important;text-transform:none!important;letter-spacing:0!important;font-size:10px!important;font-weight:700!important;padding:6px 9px!important}
+.status-planning,.status-pending{background:#f0e9dc!important;color:#765b2d!important}
+.status-active,.status-approved,.status-complete,.status-done{background:#dff2e5!important;color:#27623b!important}
+.status-paused,.status-in_progress{background:#fff0cf!important;color:#805f19!important}
+.status-submitted{background:#dff1f5!important;color:#276273!important}
+.status-cancelled,.status-changes_requested{background:#f8e1e1!important;color:#8a3c3c!important}
+html[data-ops-theme="dark"] .status-planning,html[data-ops-theme="dark"] .status-pending{background:#302a20!important;color:#e5c988!important}
+html[data-ops-theme="dark"] .status-active,html[data-ops-theme="dark"] .status-approved,html[data-ops-theme="dark"] .status-complete,html[data-ops-theme="dark"] .status-done{background:#1e3325!important;color:#8ed4a3!important}
+html[data-ops-theme="dark"] .status-paused,html[data-ops-theme="dark"] .status-in_progress{background:#352c1c!important;color:#e9c36f!important}
+html[data-ops-theme="dark"] .status-submitted{background:#1a3035!important;color:#83d5e3!important}
+html[data-ops-theme="dark"] .status-cancelled,html[data-ops-theme="dark"] .status-changes_requested{background:#351f1f!important;color:#f0a0a0!important}
+@media(prefers-color-scheme:dark){html:not([data-ops-theme="light"]) .status-planning,html:not([data-ops-theme="light"]) .status-pending{background:#302a20!important;color:#e5c988!important}html:not([data-ops-theme="light"]) .status-active,html:not([data-ops-theme="light"]) .status-approved,html:not([data-ops-theme="light"]) .status-complete,html:not([data-ops-theme="light"]) .status-done{background:#1e3325!important;color:#8ed4a3!important}html:not([data-ops-theme="light"]) .status-paused,html:not([data-ops-theme="light"]) .status-in_progress{background:#352c1c!important;color:#e9c36f!important}html:not([data-ops-theme="light"]) .status-submitted{background:#1a3035!important;color:#83d5e3!important}html:not([data-ops-theme="light"]) .status-cancelled,html:not([data-ops-theme="light"]) .status-changes_requested{background:#351f1f!important;color:#f0a0a0!important}}
+
+/* Campaign workspace: calmer, less dashboard-like. */
+.campaign-workspace .workspace-hero{border-bottom:0!important;padding-bottom:22px!important}
+.campaign-workspace .workspace-back{color:var(--app-muted)!important}
+.campaign-workspace .workspace-title-row h1{font-size:clamp(38px,4.5vw,56px)!important;color:var(--app-text)!important}
+.campaign-workspace .workspace-title-row p{color:var(--app-muted)!important;font-size:13px!important}
+.campaign-workspace .workspace-status{background:var(--app-surface)!important;color:var(--app-text)!important;border:1px solid var(--app-line)!important;border-radius:10px!important}
+.campaign-workspace .workspace-tabs{background:color-mix(in srgb,var(--app-bg) 94%,transparent)!important;border-bottom:0!important;gap:4px!important;padding:8px 0!important}
+.campaign-workspace .workspace-tabs button{border:0!important;border-radius:8px!important;padding:10px 13px!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important;color:var(--app-muted)!important}
+.campaign-workspace .workspace-tabs button.active{background:var(--app-surface)!important;color:var(--app-text)!important;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.campaign-workspace .workspace-grid{gap:20px!important}
+.campaign-workspace .workspace-panel{padding:28px!important}
+.campaign-workspace .panel-head span{color:var(--app-muted-2)!important;letter-spacing:.04em!important;font-size:10px!important}
+.campaign-workspace .panel-head h2{color:var(--app-text)!important;font-size:25px!important;margin-top:6px!important}
+.campaign-workspace .panel-head>strong{color:var(--app-muted)!important}
+.campaign-workspace .progress-track{background:var(--app-surface-3)!important;height:7px!important}
+.campaign-workspace .workspace-kpis{margin-top:18px!important}
+.campaign-workspace .workspace-kpis>div{padding:17px 18px!important}
+.campaign-workspace .workspace-kpis span{color:var(--app-muted)!important;text-transform:none!important;letter-spacing:0!important;font-size:11px!important}
+.campaign-workspace .workspace-kpis strong{font-size:23px!important;color:var(--app-text)!important}
+.campaign-workspace .workspace-field{color:var(--app-muted)!important;text-transform:none!important;letter-spacing:0!important;font-size:12px!important;font-weight:650!important;margin-top:20px!important}
+.campaign-workspace .workspace-field textarea{font-size:14px!important;font-weight:450!important;line-height:1.65!important}
+.campaign-workspace .attention-list{gap:12px!important}
+.campaign-workspace .attention-list button{background:var(--app-surface-2)!important;border:0!important;border-radius:10px!important;min-height:116px!important;padding:20px!important}
+.campaign-workspace .attention-list button:hover{background:var(--app-surface-3)!important}
+.campaign-workspace .attention-list strong{font-size:28px!important;color:var(--app-text)!important}
+.campaign-workspace .attention-list span{color:var(--app-muted)!important;font-size:11px!important}
+.campaign-workspace .workspace-person,.campaign-workspace .assign-bar,.campaign-workspace .review-actions,.campaign-workspace .client-review-bar{border-color:var(--app-line)!important}
+.campaign-workspace .creator-roster article,.campaign-workspace .workspace-deliverables article,.campaign-workspace .review-list article{background:var(--app-surface-2)!important;border:0!important;border-radius:10px!important}
+
+/* Client + creator portals */
+.client-panel,.portal-panel{overflow:hidden}
+.client-panel-head,.portal-panel-head{border-color:var(--app-line)!important}
+.client-panel-head span,.portal-panel-head span,.client-meta,.portal-meta,.client-content-card .creator,.deliverable-card .due{color:var(--app-muted)!important}
+.client-campaign,.portal-campaign,.portal-list-row{border-color:var(--app-line)!important}
+.client-campaign:hover,.portal-campaign:hover{background:var(--app-surface-2)!important}
+.client-summary p,.portal-brief p,.client-narrative p,.deliverable-card .instructions{color:var(--app-muted)!important}
+
+/* Empty states */
+.admin-empty,.client-empty,.portal-empty{color:var(--app-muted)!important}
+.admin-empty h3,.admin-empty h2{color:var(--app-text)!important}
+.admin-empty p{color:var(--app-muted)!important}
+
+@media(max-width:980px){
+  .theme-toggle.compact button{font-size:0;width:26px;height:26px;padding:0}
+  .theme-toggle.compact button:nth-child(1)::after{content:"A";font-size:10px}
+  .theme-toggle.compact button:nth-child(2)::after{content:"☀";font-size:12px}
+  .theme-toggle.compact button:nth-child(3)::after{content:"●";font-size:10px}
+}
+
+@media(max-width:720px){
+  .campaign-workspace .workspace-panel{padding:22px!important}
+  .campaign-workspace .workspace-tabs{padding-inline:12px!important}
+  .admin-nav-actions .theme-toggle,.client-nav-actions .theme-toggle,.portal-nav-actions .theme-toggle{display:none}
+}
