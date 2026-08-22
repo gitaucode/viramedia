@@ -7,7 +7,7 @@ import { getOpsDb } from "@/lib/ops-db";
 
 type DeliverableAccess={id:number;campaign_id:number;title:string;status:string;campaign_name:string};
 type VersionRow={id:number;deliverable_id:number;version_number:number;creator_id:number;source_type:'r2'|'external';r2_key:string|null;external_url:string|null;file_name:string|null;mime_type:string|null;file_size:number|null;creator_note:string;created_at:string};
-const MAX_FILE_BYTES=250*1024*1024;
+const MAX_FILE_BYTES=50*1024*1024;
 const allowedMimePrefixes=['video/','image/'];
 
 async function getAccess(deliverableId:number,creatorId:number){
@@ -45,25 +45,25 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
     let fileName:string|null=null;
     let mimeType:string|null=null;
     let fileSize:number|null=null;
-    let canonicalUrl:string|null=null;
+    let externalMediaUrl:string|null=null;
 
     if(file instanceof File&&file.size>0){
-      if(file.size>MAX_FILE_BYTES)return NextResponse.json({error:'File is too large. Maximum size is 250 MB.'},{status:413});
+      if(file.size>MAX_FILE_BYTES)return NextResponse.json({error:'File is too large. Maximum direct upload size is 50 MB.'},{status:413});
       const type=file.type||'application/octet-stream';
       if(!allowedMimePrefixes.some(prefix=>type.startsWith(prefix)))return NextResponse.json({error:'Upload a video or image file.'},{status:415});
       const bucket=getMediaBucket();if(!bucket)return NextResponse.json({error:'Media storage is unavailable'},{status:503});
       fileName=safeMediaFileName(file.name||`submission-${versionNumber}`);mimeType=type;fileSize=file.size;
       r2Key=mediaObjectKey({campaignId:access.campaign_id,deliverableId,versionNumber,fileName});uploadedKey=r2Key;
       await bucket.put(r2Key,await file.arrayBuffer(),{httpMetadata:{contentType:mimeType,contentDisposition:`inline; filename="${fileName.replaceAll('"','')}"`},customMetadata:{campaignId:String(access.campaign_id),deliverableId:String(deliverableId),creatorId:String(creator.id),versionNumber:String(versionNumber)}});
-      sourceType='r2';canonicalUrl=`/api/media/submissions/pending`;
+      sourceType='r2';
     }else{
       if(!/^https?:\/\//i.test(externalUrl))return NextResponse.json({error:'Upload a media file or add a valid http(s) content link.'},{status:400});
-      sourceType='external';canonicalUrl=externalUrl;
+      sourceType='external';externalMediaUrl=externalUrl;
     }
 
-    const result=await db.prepare(`INSERT INTO submission_versions (deliverable_id,version_number,creator_id,source_type,r2_key,external_url,file_name,mime_type,file_size,creator_note) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id`).bind(deliverableId,versionNumber,creator.id,sourceType,r2Key,sourceType==='external'?externalUrl:null,fileName,mimeType,fileSize,note).first<{id:number}>();
+    const result=await db.prepare(`INSERT INTO submission_versions (deliverable_id,version_number,creator_id,source_type,r2_key,external_url,file_name,mime_type,file_size,creator_note) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id`).bind(deliverableId,versionNumber,creator.id,sourceType,r2Key,externalMediaUrl,fileName,mimeType,fileSize,note).first<{id:number}>();
     if(!result?.id)throw new Error('Could not store submission version');
-    const mediaUrl=sourceType==='r2'?`/api/media/submissions/${result.id}`:canonicalUrl;
+    const mediaUrl=sourceType==='r2'?`/api/media/submissions/${result.id}`:externalMediaUrl;
     await db.prepare("UPDATE deliverables SET submission_url=?,submission_note=?,status='submitted',submitted_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(mediaUrl,note,deliverableId).run();
     await recordActivity({actorType:'creator',actorId:creator.id,campaignId:access.campaign_id,creatorId:creator.id,deliverableId,eventType:'deliverable.submitted',title:`Creator submitted V${versionNumber}`,detail:access.title,metadata:{submissionVersionId:result.id,versionNumber,sourceType,fileName,fileSize}});
     await sendEmail(`Creator submission — ${access.campaign_name} / ${access.title}`,`<div style="font-family:Arial,sans-serif"><h2>Creator submission received</h2><p><strong>${creator.full_name}</strong> submitted <strong>V${versionNumber}</strong> of <strong>${access.title}</strong> for ${access.campaign_name}.</p><p>${note||''}</p></div>`,creator.email);
