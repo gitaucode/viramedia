@@ -23,9 +23,9 @@ INSERT INTO creators (
 
 INSERT INTO clients (
   id,status,company,contact_name,email,phone
-) VALUES (
-  1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'
-);
+) VALUES
+  (1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'),
+  (2,'active','Second Client Ltd','Second Contact','client-two@example.com','+254700000003');
 
 INSERT INTO campaigns (
   id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
