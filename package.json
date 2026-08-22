@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node scripts/foundation-smoke.mjs",
+    "test": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/foundation-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/publishing-smoke.mjs",
     "validate": "npm run test && npm run typecheck && npm run lint && npm run build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "db:migrate:local": "wrangler d1 migrations apply vira-creators --local --config wrangler.jsonc",
