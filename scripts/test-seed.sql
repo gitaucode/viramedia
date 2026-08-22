@@ -10,8 +10,8 @@ DELETE FROM creator_notification_log;
 DELETE FROM creator_sessions;
 DELETE FROM creator_login_codes;
 DELETE FROM deliverables;
-DELETE FROM shortlist_creators;
-DELETE FROM shortlists;
+DELETE FROM campaign_creators;
+DELETE FROM campaigns;
 DELETE FROM creators;
 DELETE FROM leads;
 
@@ -21,7 +21,13 @@ INSERT INTO creators (
   1,'approved','Test Creator','creator-test@example.com','+254700000001','Nairobi','@testcreator','["lifestyle"]','["short_form"]','Automated test creator'
 );
 
-INSERT INTO shortlists (
+INSERT INTO clients (
+  id,status,company,contact_name,email,phone
+) VALUES (
+  1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'
+);
+
+INSERT INTO campaigns (
   id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
 ) VALUES (
   1,'Automated Test Campaign','Test Client','Validate the foundation workflow','Create a test short-form video','100000','planning','2026-08-22','2026-09-22','Disposable automated test data'

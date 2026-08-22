@@ -31,7 +31,7 @@ export async function POST(request:Request){
   if(action==='link'){
    await db.prepare("INSERT OR IGNORE INTO campaign_clients (campaign_id,client_id) VALUES (?,?)").bind(campaignId,clientId).run();
    const client=await db.prepare('SELECT company,contact_name,email FROM clients WHERE id=?').bind(clientId).first<{company:string;contact_name:string;email:string}>();
-   const campaign=await db.prepare('SELECT name FROM shortlists WHERE id=?').bind(campaignId).first<{name:string}>();
+   const campaign=await db.prepare('SELECT name FROM campaigns WHERE id=?').bind(campaignId).first<{name:string}>();
    if(client&&campaign){const site=process.env.VIRA_SITE_URL||new URL(request.url).origin;await sendEmailTo(client.email,`Campaign portal access — ${campaign.name}`,`<div style="font-family:Arial,sans-serif"><h2>Your Vira campaign portal is ready</h2><p>Hi ${client.contact_name}, ${client.company} now has portal access to <strong>${campaign.name}</strong>.</p><p><a href="${site}/client/login">Open Client Portal</a></p></div>`)}
    return NextResponse.json({ok:true});
   }

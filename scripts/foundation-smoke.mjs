@@ -70,12 +70,47 @@ async function main() {
     response = await fetch(`${BASE}/api/admin/dashboard`, { headers: { Cookie: cookie } });
     assert(response.ok, `Authenticated dashboard failed with ${response.status}`);
 
+    response = await fetch(`${BASE}/api/admin/shortlists`, { headers: { Cookie: cookie } });
+    assert(response.status === 410, `Expected retired shortlist API 410, got ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/campaigns`, { headers: { Cookie: cookie } });
+    assert(response.ok, `Campaign listing failed with ${response.status}`);
+    const campaigns = (await response.json()).campaigns || [];
+    assert(campaigns.length === 1 && campaigns[0].id === 1, "Canonical campaign migration did not preserve campaign ID 1");
+
+    response = await fetch(`${BASE}/api/admin/clients`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ action: "link", campaignId: 1, clientId: 1 }),
+    });
+    assert(response.ok, `Client campaign link failed with ${response.status}`);
+    response = await fetch(`${BASE}/api/admin/clients?campaignId=1`, { headers: { Cookie: cookie } });
+    assert(response.ok, `Linked client listing failed with ${response.status}`);
+    const linkedClients = (await response.json()).clients || [];
+    assert(linkedClients.length === 1 && linkedClients[0].id === 1, "campaign_clients foreign key did not survive campaign table rename");
+
     response = await fetch(`${BASE}/api/admin/campaign-creators`, {
       method: "POST",
       headers: auth,
-      body: JSON.stringify({ action: "add", campaignId: 1, creatorId: 1 }),
+      body: JSON.stringify({ action: "add", campaignId: 1, creatorId: 1, status: "shortlisted" }),
+    });
+    assert(response.ok, `Creator shortlisting failed with ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/campaign-creators?campaignId=1`, { headers: { Cookie: cookie } });
+    assert(response.ok, `Campaign creator listing failed with ${response.status}`);
+    let campaignCreators = (await response.json()).creators || [];
+    assert(campaignCreators.length === 1 && campaignCreators[0].assignment_status === "shortlisted", "Creator was not stored as shortlisted");
+
+    response = await fetch(`${BASE}/api/admin/campaign-creators`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ action: "add", campaignId: 1, creatorId: 1, status: "assigned" }),
     });
     assert(response.ok, `Creator assignment failed with ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/campaign-creators?campaignId=1`, { headers: { Cookie: cookie } });
+    campaignCreators = (await response.json()).creators || [];
+    assert(campaignCreators[0]?.assignment_status === "assigned", "Creator lifecycle did not move shortlisted → assigned");
 
     response = await fetch(`${BASE}/api/admin/deliverables`, {
       method: "POST",
@@ -116,6 +151,7 @@ async function main() {
     const events = (await response.json()).events || [];
     const types = new Set(events.map((event) => event.event_type));
     for (const expected of [
+      "campaign_creator.shortlisted",
       "campaign_creator.assigned",
       "deliverable.created",
       "deliverable.status_changed",
@@ -130,8 +166,8 @@ async function main() {
     response = await fetch(`${BASE}/api/admin/dashboard`, { headers: { Cookie: clearCookie || cookie } });
     assert(response.status === 401, `Expected dashboard 401 after logout, got ${response.status}`);
 
-    console.log("\n✓ Foundation smoke test passed");
-    console.log(`✓ Verified ${events.length} activity events`);
+    console.log("\n✓ Core operating loop smoke test passed");
+    console.log(`✓ Verified canonical campaign model and ${events.length} activity events`);
   } finally {
     if (process.platform === "win32") {
       spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore", shell: true });
@@ -142,7 +178,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("\n✗ Foundation smoke test failed");
+  console.error("\n✗ Core operating loop smoke test failed");
   console.error(error);
   process.exitCode = 1;
 });
