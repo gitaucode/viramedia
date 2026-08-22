@@ -26,7 +26,7 @@ export async function POST(request:Request){
     const campaignId=Number(b.campaignId),creatorId=Number(b.creatorId)||0;
     if(!Number.isInteger(campaignId)||!String(b.title||'').trim())return NextResponse.json({error:'Campaign and title required'},{status:400});
     if(b.status&&!allowed.has(b.status))return NextResponse.json({error:'Invalid status'},{status:400});
-    if(reviewManaged.has(String(b.status||'')))return NextResponse.json({error:'New deliverables cannot start in a reviewed state'},{status:400});
+    if(reviewManaged.has(String(b.status||''))||b.status==='done')return NextResponse.json({error:'New deliverables cannot start in a reviewed or completed state'},{status:400});
     if(b.paymentStatus&&!paymentAllowed.has(b.paymentStatus))return NextResponse.json({error:'Invalid payment status'},{status:400});
     if(creatorId){
       const assignment=await db.prepare("SELECT 1 ok FROM campaign_creators WHERE campaign_id=? AND creator_id=? AND status='assigned'").bind(campaignId,creatorId).first<{ok:number}>();
@@ -51,6 +51,7 @@ export async function PATCH(request:Request){
     if(!Number.isInteger(id)||id<1)return NextResponse.json({error:'Invalid deliverable'},{status:400});
     if(b.status&&!allowed.has(b.status))return NextResponse.json({error:'Invalid status'},{status:400});
     if(reviewManaged.has(String(b.status||'')))return NextResponse.json({error:'Approve or request changes from a specific submission version in Review'},{status:409});
+    if(b.status==='done')return NextResponse.json({error:'A deliverable is completed automatically when the client approves the shared version'},{status:409});
     if(b.paymentStatus&&!paymentAllowed.has(b.paymentStatus))return NextResponse.json({error:'Invalid payment status'},{status:400});
     const before=await db.prepare(`SELECT d.id,d.title,d.creator_id,d.status,d.payment_status,camp.id campaign_id FROM deliverables d JOIN campaigns camp ON camp.id=d.campaign_id WHERE d.id=?`).bind(id).first<{id:number;title:string;creator_id:number|null;status:string;payment_status:string;campaign_id:number}>();
     if(!before)return NextResponse.json({error:'Not found'},{status:404});
