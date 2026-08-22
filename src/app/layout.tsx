@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./rhythm.css";
 import "./ui-polish.css";
+import "./workspace-soft.css";
 import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
