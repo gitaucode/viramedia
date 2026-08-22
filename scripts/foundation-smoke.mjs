@@ -42,6 +42,7 @@ async function main() {
     shell: process.platform === "win32",
     env: {
       ...process.env,
+      VIRA_ADMIN_PASSWORD: PASSWORD,
       VIRA_TEST_WRANGLER_CONFIG: CONFIG,
       VIRA_TEST_D1_STATE: STATE,
       NEXT_TELEMETRY_DISABLED: "1",
