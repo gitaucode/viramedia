@@ -1,27 +1,72 @@
 # Vira Media
 
-Next.js website for **Vira Media**, a Kenya-focused creator marketing and short-form creative agency.
+Vira Media is a Kenya-focused creator marketing agency with an internal operating system for running creator campaigns from lead intake through creator management, content review, client approval, reporting and payment tracking.
 
-## Brand architecture
+## Product architecture
 
-- **Vira Media**: B2B agency for brands
-- **Vira Network**: vetted creator network for paid UGC and creator-led campaigns
+- **Public Vira**: agency website for brands and creator applications.
+- **Vira Ops**: internal agency workspace for leads, creators, campaigns, deliverables, review, reporting and finance.
+- **Creator Portal**: creator-facing workspace for assignments, briefs, submissions, feedback and payment visibility.
+- **Client Portal**: client-facing workspace for campaign visibility, content review, approvals and reporting.
 
-V1 is intentionally manual. There is no CRM, marketplace, creator login, or database. Brand enquiries and creator applications are delivered by email for manual review.
+The product direction and implementation roadmap are documented in:
 
-## Routes
+- `docs/PRODUCT.md`
+- `docs/IMPLEMENTATION_PLAN.md`
+- `docs/DESIGN_SYSTEM.md`
 
-- `/` brand-focused homepage
-- `/services` services for businesses
-- `/work` short-form campaign concepts / future case studies
-- `/creators` Vira Network landing page
-- `/creators/apply` five-step creator application wizard
+## Core operating loop
+
+Lead → Client → Campaign → Creator selection → Assignment → Brief → Content submission → Internal review → Client review → Approval → Publishing → Performance → Creator payment → Campaign report.
+
+The current product implements substantial parts of this loop. The active development priority is the **Core Operating Loop Big Build**, which completes the foundation, versioned media submissions, publishing, automation, commercial tracking and action-oriented Command Centre.
+
+## Stack
+
+- Next.js 16 / React 19
+- Cloudflare Workers via OpenNext
+- Cloudflare D1
+- Resend email
+- Cloudflare cron/scheduled Worker
+- Cloudflare R2 planned for versioned campaign media uploads
+
+## Main routes
+
+### Public
+
+- `/`
+- `/services`
+- `/work`
+- `/creators`
+- `/creators/apply`
 - `/about`
-- `/contact` brand campaign brief
+- `/contact`
 - `/privacy`
 - `/terms`
 
-## Run locally
+### Vira Ops
+
+- `/admin`
+- `/admin/leads`
+- `/admin/campaigns`
+- `/admin/campaigns/[id]`
+- `/admin/reporting`
+- `/admin/clients`
+- `/admin/creators`
+
+### Creator Portal
+
+- `/portal/login`
+- `/portal/dashboard`
+- `/portal/campaigns/[id]`
+
+### Client Portal
+
+- `/client/login`
+- `/client/dashboard`
+- `/client/campaigns/[id]`
+
+## Local development
 
 ```bash
 npm install
@@ -30,37 +75,38 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-## Email forms
+Useful checks:
 
-Both the brand enquiry form and creator application POST to Next.js Route Handlers and send a formatted email using Resend.
-
-1. Copy `.env.example` to `.env.local`.
-2. Add your Resend API key.
-3. Set `VIRA_INBOX` to the inbox that should receive applications and briefs.
-4. Set `VIRA_FROM_EMAIL` to an address on a domain verified in Resend.
-5. Add the public phone, WhatsApp and email values.
-
-```env
-RESEND_API_KEY=
-VIRA_INBOX=hello@viramedia.co.ke
-VIRA_FROM_EMAIL="Vira Website <website@your-verified-domain.co.ke>"
-NEXT_PUBLIC_VIRA_WHATSAPP=254700000000
-NEXT_PUBLIC_VIRA_PHONE=+254700000000
-NEXT_PUBLIC_VIRA_EMAIL=hello@viramedia.co.ke
+```bash
+npm run typecheck
+npm run lint
+npm run build
 ```
 
-The code also accepts the previous `NOMA_*` environment variable names as fallbacks so an existing local configuration does not immediately break during the rename.
+## Database
 
-## Creator workflow in V1
+The application uses Cloudflare D1 with migrations in `migrations/`.
 
-Creator applies → Vira receives the application by email → manual review → approved creators can be tracked in a Google Sheet until manual coordination becomes a bottleneck.
+Apply locally with Wrangler when local schema setup is required. Production migrations should only be applied as part of an explicitly reviewed deployment/migration step.
 
-The wizard saves an unfinished draft in the browser's local storage and clears it after successful submission.
+## Email and authentication
 
-## Before launch
+Resend is used for transactional email. Creator and client portals use email-based access codes and server-side sessions. Vira Ops currently uses an admin password session mechanism, scheduled for replacement with random revocable admin sessions during the Core Operating Loop foundation work.
 
-- Replace placeholder phone / WhatsApp values.
-- Use an email/domain you actually control.
-- Verify `VIRA_FROM_EMAIL` in Resend.
-- Replace representative campaign concepts with verified client work as it becomes available.
-- Have the privacy and terms pages reviewed for your final legal entity and production data practices.
+Environment values are documented in `.env.example`.
+
+## Deployment
+
+Production is deployed through Cloudflare's Git integration from the `main` branch. Merging to `main` triggers the Cloudflare build/deployment workflow.
+
+The repository also contains local/manual deployment scripts, but normal production deployment should use the established Git integration unless intentionally changing the deployment process.
+
+## Development principles
+
+- Keep the campaign as the central operating object.
+- Preserve submission/review history rather than overwriting it.
+- Keep client visibility controlled by Vira.
+- Keep finance operational and campaign-specific rather than building full accounting software.
+- Favor action-oriented dashboards over vanity metrics.
+- Follow `docs/DESIGN_SYSTEM.md` for all workspace UI changes.
+- Update `docs/IMPLEMENTATION_PLAN.md` as milestones are completed or changed.
