@@ -29,3 +29,9 @@ WHERE primary_client_id IS NULL
     FROM campaign_clients cc
     WHERE cc.campaign_id = campaigns.id
   );
+
+UPDATE campaign_clients
+SET role = CASE
+  WHEN client_id = (SELECT primary_client_id FROM campaigns WHERE id = campaign_clients.campaign_id) THEN 'primary'
+  ELSE 'client'
+END;
