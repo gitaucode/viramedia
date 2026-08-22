@@ -6,7 +6,7 @@ import { sendEmailTo } from "@/lib/email";
 
 const clean=(v:unknown,max=6000)=>typeof v==='string'?v.trim().slice(0,max):'';
 const num=(v:unknown)=>Math.max(0,Number(v)||0);
-const shareAllowed=new Set(['not_ready','awaiting_client','approved','changes_requested']);
+const shareAllowed=new Set(['not_ready','awaiting_client']);
 
 export async function GET(request:Request){
  if(!(await isAdminAuthenticated()))return NextResponse.json({error:'Unauthorized'},{status:401});
@@ -27,9 +27,9 @@ export async function PATCH(request:Request){
    return NextResponse.json({ok:true});
   }
   const deliverableId=Number(b.deliverableId);if(!Number.isInteger(deliverableId)||deliverableId<1)return NextResponse.json({error:'Invalid deliverable'},{status:400});
-  const owned=await db.prepare('SELECT d.status,d.title,d.creator_id,d.client_approval_status,d.internal_review_version_id,camp.name campaign_name FROM deliverables d JOIN campaigns camp ON camp.id=d.campaign_id WHERE d.id=? AND d.campaign_id=?').bind(deliverableId,campaignId).first<{status:string;title:string;creator_id:number|null;client_approval_status:string;internal_review_version_id:number|null;campaign_name:string}>();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
+  const owned=await db.prepare('SELECT d.status,d.title,d.creator_id,d.client_approval_status,d.internal_review_version_id,d.client_submission_version_id,camp.name campaign_name FROM deliverables d JOIN campaigns camp ON camp.id=d.campaign_id WHERE d.id=? AND d.campaign_id=?').bind(deliverableId,campaignId).first<{status:string;title:string;creator_id:number|null;client_approval_status:string;internal_review_version_id:number|null;client_submission_version_id:number|null;campaign_name:string}>();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
   if(b.kind==='share'){
-   const status=String(b.clientApprovalStatus||'');if(!shareAllowed.has(status))return NextResponse.json({error:'Invalid client approval status'},{status:400});
+   const status=String(b.clientApprovalStatus||'');if(!shareAllowed.has(status))return NextResponse.json({error:'Admin can only share an approved version with the client or withdraw it from review'},{status:400});
    if(status==='awaiting_client'&&!['approved','done'].includes(owned.status))return NextResponse.json({error:'Approve the latest submission internally before sharing it with the client'},{status:400});
    let sharedVersionId:number|null=null;
    if(status==='awaiting_client'){
@@ -38,11 +38,14 @@ export async function PATCH(request:Request){
     if(!approvedVersion)return NextResponse.json({error:'The internally approved version no longer exists'},{status:409});
     const latest=await db.prepare('SELECT id,version_number FROM submission_versions WHERE deliverable_id=? ORDER BY version_number DESC LIMIT 1').bind(deliverableId).first<{id:number;version_number:number}>();
     if(!latest||latest.id!==approvedVersion.id)return NextResponse.json({error:`V${latest?.version_number||'?'} is newer than the approved version. Review the latest version before client sharing.`},{status:409});
+    if(owned.client_approval_status==='awaiting_client'&&owned.client_submission_version_id===approvedVersion.id)return NextResponse.json({error:`V${approvedVersion.version_number} is already with the client`},{status:409});
     sharedVersionId=approvedVersion.id;
     await db.prepare(`INSERT INTO review_events (deliverable_id,submission_version_id,reviewer_type,reviewer_id,action,feedback) VALUES (?,?,'admin',NULL,'shared_with_client','')`).bind(deliverableId,sharedVersionId).run();
+   }else if(owned.client_approval_status==='not_ready'&&owned.client_submission_version_id===null){
+    return NextResponse.json({ok:true,submissionVersionId:null});
    }
-   await db.prepare(`UPDATE deliverables SET client_approval_status=?,client_submission_version_id=CASE WHEN ?='awaiting_client' THEN ? WHEN ?='not_ready' THEN NULL ELSE client_submission_version_id END,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(status,status,sharedVersionId,status,deliverableId).run();
-   await recordActivity({actorType:'admin',campaignId,creatorId:owned.creator_id,deliverableId,eventType:'deliverable.client_review_status_changed',title:status==='awaiting_client'?'Approved version shared with client':'Client review status changed',detail:`${owned.title}: ${owned.client_approval_status.replaceAll('_',' ')} → ${status.replaceAll('_',' ')}`,metadata:{from:owned.client_approval_status,to:status,submissionVersionId:sharedVersionId}});
+   await db.prepare(`UPDATE deliverables SET client_approval_status=?,client_submission_version_id=CASE WHEN ?='awaiting_client' THEN ? ELSE NULL END,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(status,status,sharedVersionId,deliverableId).run();
+   await recordActivity({actorType:'admin',campaignId,creatorId:owned.creator_id,deliverableId,eventType:'deliverable.client_review_status_changed',title:status==='awaiting_client'?'Approved version shared with client':'Client review withdrawn',detail:`${owned.title}: ${owned.client_approval_status.replaceAll('_',' ')} → ${status.replaceAll('_',' ')}`,metadata:{from:owned.client_approval_status,to:status,submissionVersionId:sharedVersionId}});
    if(status==='awaiting_client'){
     const linked=await db.prepare(`SELECT c.contact_name,c.email FROM campaign_clients cc JOIN clients c ON c.id=cc.client_id WHERE cc.campaign_id=? AND c.status='active'`).bind(campaignId).all<{contact_name:string;email:string}>();
     const site=process.env.VIRA_SITE_URL||new URL(request.url).origin;
