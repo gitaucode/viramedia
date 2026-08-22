@@ -25,3 +25,9 @@ ON submission_versions(deliverable_id, version_number DESC);
 
 CREATE INDEX IF NOT EXISTS idx_submission_versions_creator
 ON submission_versions(creator_id, created_at DESC);
+
+ALTER TABLE deliverables
+ADD COLUMN client_submission_version_id INTEGER REFERENCES submission_versions(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_deliverables_client_submission_version
+ON deliverables(client_submission_version_id);
