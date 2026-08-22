@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test": "node scripts/foundation-smoke.mjs",
+    "validate": "npm run test && npm run typecheck && npm run lint && npm run build",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "db:migrate": "wrangler d1 migrations apply vira-creators --remote --config wrangler.jsonc",
     "deploy": "npm run db:migrate && opennextjs-cloudflare build && wrangler deploy --config wrangler.jsonc --compatibility-date 2026-08-15",
