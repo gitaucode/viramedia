@@ -78,16 +78,53 @@ async function main() {
     const campaigns = (await response.json()).campaigns || [];
     assert(campaigns.length === 1 && campaigns[0].id === 1, "Canonical campaign migration did not preserve campaign ID 1");
 
+    response = await fetch(`${BASE}/api/creator-application`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName: "Duplicate Creator",
+        email: "CREATOR-TEST@EXAMPLE.COM",
+        phone: "+254700000099",
+        city: "Nairobi",
+        tiktok: "@duplicate",
+      }),
+    });
+    assert(response.status === 409, `Expected duplicate creator email 409, got ${response.status}`);
+
     response = await fetch(`${BASE}/api/admin/clients`, {
       method: "POST",
       headers: auth,
       body: JSON.stringify({ action: "link", campaignId: 1, clientId: 1 }),
     });
     assert(response.ok, `Client campaign link failed with ${response.status}`);
+
     response = await fetch(`${BASE}/api/admin/clients?campaignId=1`, { headers: { Cookie: cookie } });
     assert(response.ok, `Linked client listing failed with ${response.status}`);
-    const linkedClients = (await response.json()).clients || [];
-    assert(linkedClients.length === 1 && linkedClients[0].id === 1, "campaign_clients foreign key did not survive campaign table rename");
+    let linkedClients = (await response.json()).clients || [];
+    assert(linkedClients.length === 1 && linkedClients[0].id === 1 && Number(linkedClients[0].is_primary) === 1, "First linked client was not made primary");
+
+    response = await fetch(`${BASE}/api/admin/clients`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ action: "link", campaignId: 1, clientId: 2, primary: true }),
+    });
+    assert(response.ok, `Second client link failed with ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/clients?campaignId=1`, { headers: { Cookie: cookie } });
+    linkedClients = (await response.json()).clients || [];
+    assert(Number(linkedClients.find((c) => c.id === 2)?.is_primary) === 1, "Explicit primary client was not set");
+    assert(Number(linkedClients.find((c) => c.id === 1)?.is_primary) === 0, "Previous primary client was not demoted");
+
+    response = await fetch(`${BASE}/api/admin/clients`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ action: "unlink", campaignId: 1, clientId: 2 }),
+    });
+    assert(response.ok, `Primary client unlink failed with ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/clients?campaignId=1`, { headers: { Cookie: cookie } });
+    linkedClients = (await response.json()).clients || [];
+    assert(linkedClients.length === 1 && linkedClients[0].id === 1 && Number(linkedClients[0].is_primary) === 1, "Remaining client was not promoted after primary unlink");
 
     response = await fetch(`${BASE}/api/admin/campaign-creators`, {
       method: "POST",
@@ -139,6 +176,20 @@ async function main() {
     });
     assert(response.ok, `Payment update failed with ${response.status}`);
 
+    response = await fetch(`${BASE}/api/admin/deliverables`, {
+      method: "PATCH",
+      headers: auth,
+      body: JSON.stringify({ id: deliverableId, status: "approved" }),
+    });
+    assert(response.ok, `Internal approval failed with ${response.status}`);
+
+    response = await fetch(`${BASE}/api/admin/reporting`, {
+      method: "PATCH",
+      headers: auth,
+      body: JSON.stringify({ kind: "share", campaignId: 1, deliverableId, clientApprovalStatus: "awaiting_client" }),
+    });
+    assert(response.ok, `Client review sharing failed with ${response.status}`);
+
     response = await fetch(`${BASE}/api/admin/campaign-creators`, {
       method: "POST",
       headers: auth,
@@ -151,11 +202,15 @@ async function main() {
     const events = (await response.json()).events || [];
     const types = new Set(events.map((event) => event.event_type));
     for (const expected of [
+      "campaign_client.linked",
+      "campaign_client.primary_changed",
+      "campaign_client.unlinked",
       "campaign_creator.shortlisted",
       "campaign_creator.assigned",
       "deliverable.created",
       "deliverable.status_changed",
       "deliverable.payment_changed",
+      "deliverable.client_review_status_changed",
       "campaign_creator.removed",
     ]) assert(types.has(expected), `Missing activity event: ${expected}`);
 
@@ -166,8 +221,8 @@ async function main() {
     response = await fetch(`${BASE}/api/admin/dashboard`, { headers: { Cookie: clearCookie || cookie } });
     assert(response.status === 401, `Expected dashboard 401 after logout, got ${response.status}`);
 
-    console.log("\n✓ Core operating loop smoke test passed");
-    console.log(`✓ Verified canonical campaign model and ${events.length} activity events`);
+    console.log("\n✓ Foundation integrity smoke test passed");
+    console.log(`✓ Verified creator identity, primary client rules and ${events.length} activity events`);
   } finally {
     if (process.platform === "win32") {
       spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore", shell: true });
@@ -178,7 +233,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("\n✗ Core operating loop smoke test failed");
+  console.error("\n✗ Foundation integrity smoke test failed");
   console.error(error);
   process.exitCode = 1;
 });

@@ -71,10 +71,14 @@ export async function saveCreatorApplication(data: Record<string, unknown>) {
   if (!db) return { saved: false, reason: "DB_NOT_CONFIGURED" as const };
 
   const s = (key: string, max = 500) => typeof data[key] === "string" ? String(data[key]).trim().slice(0, max) : "";
+  const email = s("email",160).toLowerCase();
+  const existing = await db.prepare("SELECT id FROM creators WHERE email = ? COLLATE NOCASE").bind(email).first<{id:number}>();
+  if (existing) return { saved: false, reason: "EMAIL_EXISTS" as const, creatorId: existing.id };
+
   await db.prepare(`INSERT INTO creators (
     full_name,email,phone,city,age_bracket,gender,tiktok,tiktok_followers,avg_views,instagram,instagram_followers,youtube,best_content,niches,languages,formats,brand_experience,past_brands,ugc,own_account,paid_usage,physical_shoots,travel,rate_range,portfolio
   ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(
-    s("fullName",100),s("email",160),s("phone",50),s("city",100),s("ageBracket",30),s("gender",30),s("tiktok",250),s("tiktokFollowers",50),s("avgViews",50),s("instagram",250),s("instagramFollowers",50),s("youtube",250),s("bestContent",500),jsonList(data.niches),s("languages",200),jsonList(data.formats),s("brandExperience",10),s("pastBrands",1000),s("ugc",10),s("ownAccount",10),s("paidUsage",10),s("physicalShoots",10),s("travel",10),s("rateRange",150),s("portfolio",500)
+    s("fullName",100),email,s("phone",50),s("city",100),s("ageBracket",30),s("gender",30),s("tiktok",250),s("tiktokFollowers",50),s("avgViews",50),s("instagram",250),s("instagramFollowers",50),s("youtube",250),s("bestContent",500),jsonList(data.niches),s("languages",200),jsonList(data.formats),s("brandExperience",10),s("pastBrands",1000),s("ugc",10),s("ownAccount",10),s("paidUsage",10),s("physicalShoots",10),s("travel",10),s("rateRange",150),s("portfolio",500)
   ).run();
   return { saved: true as const };
 }
