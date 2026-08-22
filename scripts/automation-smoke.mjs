@@ -3,9 +3,11 @@ import process from "node:process";
 
 const CONFIG="wrangler.test.jsonc";
 const STATE=".wrangler/test-state";
+const NPX=process.platform==="win32"?"npx.cmd":"npx";
 
 function execSql(sql){
-  const result=spawnSync("npx",["wrangler","d1","execute","vira-creators-test","--local","--config",CONFIG,"--persist-to",STATE,"--command",sql,"--json"],{encoding:"utf8",shell:process.platform==="win32",env:{...process.env,CI:"true"}});
+  const result=spawnSync(NPX,["wrangler","d1","execute","vira-creators-test","--local","--config",CONFIG,"--persist-to",STATE,"--command",sql,"--json"],{encoding:"utf8",shell:false,env:{...process.env,CI:"true"}});
+  if(result.error)throw result.error;
   if(result.status!==0){process.stderr.write(result.stderr||"");process.exit(result.status??1)}
   const parsed=JSON.parse(result.stdout||"[]");
   return parsed?.[0]?.results||[];
