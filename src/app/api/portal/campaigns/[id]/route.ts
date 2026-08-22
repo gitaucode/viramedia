@@ -4,10 +4,12 @@ import { getOpsDb } from "@/lib/ops-db";
 
 type Campaign={id:number;name:string;client:string;creator_brief:string;status:string;start_date:string|null;end_date:string|null};
 type Deliverable={id:number;title:string;due_date:string|null;status:string;instructions:string;submission_url:string|null;submission_note:string;feedback:string;submitted_at:string|null;approved_at:string|null;creator_fee:number;payment_status:string;payment_date:string|null;payment_reference:string};
+type SubmissionVersion={id:number;deliverable_id:number;version_number:number;source_type:'r2'|'external';external_url:string|null;file_name:string|null;mime_type:string|null;file_size:number|null;creator_note:string;created_at:string};
 export async function GET(_request:Request,{params}:{params:Promise<{id:string}>}){
  const creator=await getCreatorSession();if(!creator)return NextResponse.json({error:'Unauthorized'},{status:401});const {id}=await params;const campaignId=Number(id);if(!Number.isInteger(campaignId))return NextResponse.json({error:'Invalid campaign'},{status:400});const db=getOpsDb();if(!db)return NextResponse.json({error:'Database unavailable'},{status:503});
  const campaign=await db.prepare(`SELECT camp.id,camp.name,camp.client,camp.creator_brief,camp.status,camp.start_date,camp.end_date FROM campaigns camp JOIN campaign_creators cc ON cc.campaign_id=camp.id WHERE camp.id=? AND cc.creator_id=? AND cc.status IN ('accepted','assigned')`).bind(campaignId,creator.id).first<Campaign>();
  if(!campaign)return NextResponse.json({error:'Not found'},{status:404});
  const deliverables=(await db.prepare(`SELECT id,title,due_date,status,instructions,submission_url,submission_note,feedback,submitted_at,approved_at,creator_fee,payment_status,payment_date,payment_reference FROM deliverables WHERE campaign_id=? AND creator_id=? ORDER BY CASE WHEN due_date IS NULL THEN 1 ELSE 0 END,due_date ASC,id DESC`).bind(campaignId,creator.id).all<Deliverable>()).results??[];
- return NextResponse.json({creator,campaign,deliverables});
+ const versions=(await db.prepare(`SELECT sv.id,sv.deliverable_id,sv.version_number,sv.source_type,sv.external_url,sv.file_name,sv.mime_type,sv.file_size,sv.creator_note,sv.created_at FROM submission_versions sv JOIN deliverables d ON d.id=sv.deliverable_id WHERE d.campaign_id=? AND d.creator_id=? ORDER BY sv.deliverable_id,sv.version_number DESC`).bind(campaignId,creator.id).all<SubmissionVersion>()).results??[];
+ return NextResponse.json({creator,campaign,deliverables,versions});
 }
