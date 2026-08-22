@@ -21,6 +21,12 @@ INSERT INTO creators (
   1,'approved','Test Creator','creator-test@example.com','+254700000001','Nairobi','@testcreator','["lifestyle"]','["short_form"]','Automated test creator'
 );
 
+INSERT INTO clients (
+  id,status,company,contact_name,email,phone
+) VALUES (
+  1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'
+);
+
 INSERT INTO campaigns (
   id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
 ) VALUES (
