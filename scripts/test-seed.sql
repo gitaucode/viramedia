@@ -31,6 +31,9 @@ INSERT INTO clients (
   (1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'),
   (2,'active','Second Client Ltd','Second Contact','client-two@example.com','+254700000003');
 
+INSERT INTO client_sessions (token_hash,client_id,expires_at)
+VALUES ('22875b61a8c5eb79126c784f918d09d58266677282be51b053af6f587ee4edaf',1,'2099-01-01 00:00:00');
+
 INSERT INTO campaigns (
   id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
 ) VALUES (
