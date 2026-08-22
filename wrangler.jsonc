@@ -15,6 +15,12 @@
       "database_id": "a1af07f4-40b7-4a31-a536-1f36b7b0de6b"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "VIRA_MEDIA",
+      "bucket_name": "vira-media"
+    }
+  ],
   "vars": {
     "VIRA_SITE_URL": "https://viramedia.stephen-gitau.workers.dev"
   },

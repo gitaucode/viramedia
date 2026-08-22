@@ -9,6 +9,7 @@ DELETE FROM clients;
 DELETE FROM creator_notification_log;
 DELETE FROM creator_sessions;
 DELETE FROM creator_login_codes;
+DELETE FROM submission_versions;
 DELETE FROM deliverables;
 DELETE FROM campaign_creators;
 DELETE FROM campaigns;
@@ -21,11 +22,17 @@ INSERT INTO creators (
   1,'approved','Test Creator','creator-test@example.com','+254700000001','Nairobi','@testcreator','["lifestyle"]','["short_form"]','Automated test creator'
 );
 
+INSERT INTO creator_sessions (token_hash,creator_id,expires_at)
+VALUES ('65420df3222a6de70179398a439648f6dabe792fb8f5093bb2539952aa13ce8c',1,'2099-01-01 00:00:00');
+
 INSERT INTO clients (
   id,status,company,contact_name,email,phone
 ) VALUES
   (1,'active','Test Client Ltd','Test Contact','client-test@example.com','+254700000002'),
   (2,'active','Second Client Ltd','Second Contact','client-two@example.com','+254700000003');
+
+INSERT INTO client_sessions (token_hash,client_id,expires_at)
+VALUES ('22875b61a8c5eb79126c784f918d09d58266677282be51b053af6f587ee4edaf',1,'2099-01-01 00:00:00');
 
 INSERT INTO campaigns (
   id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
