@@ -16,12 +16,16 @@ export async function PATCH(request:Request,{params}:{params:Promise<{id:string}
    return NextResponse.json({ok:true,status:'in_progress'});
   }
   if(b.action==='submit'){
+   if(['approved','done'].includes(row.status))return NextResponse.json({error:'This deliverable is already complete'},{status:400});
    const url=typeof b.url==='string'?b.url.trim().slice(0,1000):'';const note=typeof b.note==='string'?b.note.trim().slice(0,5000):'';
    if(!/^https?:\/\//i.test(url))return NextResponse.json({error:'Add a valid http(s) content link'},{status:400});
+   const latest=await db.prepare('SELECT COALESCE(MAX(version_number),0) n FROM submission_versions WHERE deliverable_id=?').bind(deliverableId).first<{n:number}>();const versionNumber=Number(latest?.n||0)+1;
+   const version=await db.prepare(`INSERT INTO submission_versions (deliverable_id,version_number,creator_id,source_type,external_url,creator_note) VALUES (?,?,?,'external',?,?) RETURNING id`).bind(deliverableId,versionNumber,creator.id,url,note).first<{id:number}>();
+   if(!version?.id)throw new Error('Could not store submission version');
    await db.prepare("UPDATE deliverables SET submission_url=?,submission_note=?,status='submitted',submitted_at=CURRENT_TIMESTAMP,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(url,note,deliverableId).run();
-   await recordActivity({actorType:'creator',actorId:creator.id,campaignId:row.campaign_id,creatorId:creator.id,deliverableId,eventType:'deliverable.submitted',title:'Creator submitted content',detail:row.title,metadata:{submissionUrl:url}});
-   await sendEmail(`Creator submission — ${row.campaign_name} / ${row.title}`,`<div style="font-family:Arial,sans-serif"><h2>Creator submission received</h2><p><strong>${creator.full_name}</strong> submitted <strong>${row.title}</strong> for ${row.campaign_name}.</p><p><a href="${url}">Open submitted content</a></p><p>${note||''}</p></div>`,creator.email);
-   return NextResponse.json({ok:true,status:'submitted'});
+   await recordActivity({actorType:'creator',actorId:creator.id,campaignId:row.campaign_id,creatorId:creator.id,deliverableId,eventType:'deliverable.submitted',title:`Creator submitted V${versionNumber}`,detail:row.title,metadata:{submissionVersionId:version.id,versionNumber,sourceType:'external'}});
+   await sendEmail(`Creator submission — ${row.campaign_name} / ${row.title}`,`<div style="font-family:Arial,sans-serif"><h2>Creator submission received</h2><p><strong>${creator.full_name}</strong> submitted <strong>V${versionNumber}</strong> of <strong>${row.title}</strong> for ${row.campaign_name}.</p><p><a href="${url}">Open submitted content</a></p><p>${note||''}</p></div>`,creator.email);
+   return NextResponse.json({ok:true,status:'submitted',version:{id:version.id,versionNumber}});
   }
   return NextResponse.json({error:'Invalid action'},{status:400});
  }catch{return NextResponse.json({error:'Invalid request'},{status:400})}
