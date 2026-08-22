@@ -36,7 +36,8 @@ export async function PATCH(request:Request){
   if(!(await isAdminAuthenticated()))return NextResponse.json({error:"Unauthorized"},{status:401});
   const db=getOpsDb();if(!db)return NextResponse.json({error:"Database unavailable"},{status:503});
   try{const b=await request.json();const campaignId=Number(b.campaignId),commercialValue=num(b.commercialValue),invoicedAmount=num(b.invoicedAmount);if(!Number.isInteger(campaignId)||campaignId<1||commercialValue===null||invoicedAmount===null)return NextResponse.json({error:"Valid campaign value and invoiced amount are required"},{status:400});
-    const result=await db.prepare("UPDATE campaigns SET commercial_value=?,invoiced_amount=? WHERE id=?").bind(commercialValue,invoicedAmount,campaignId).run();if(!result.meta.changes)return NextResponse.json({error:"Campaign not found"},{status:404});
+    const campaign=await db.prepare("SELECT id FROM campaigns WHERE id=?").bind(campaignId).first<{id:number}>();if(!campaign)return NextResponse.json({error:"Campaign not found"},{status:404});
+    await db.prepare("UPDATE campaigns SET commercial_value=?,invoiced_amount=? WHERE id=?").bind(commercialValue,invoicedAmount,campaignId).run();
     await recordActivity({actorType:"admin",campaignId,eventType:"finance.commercial_updated",title:"Commercial terms updated",detail:`Campaign value and invoiced amount updated`,metadata:{commercialValue,invoicedAmount}});
     return NextResponse.json({ok:true});
   }catch{return NextResponse.json({error:"Invalid request"},{status:400})}
