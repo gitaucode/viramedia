@@ -32,7 +32,7 @@ async function main() {
   run("npx", ["wrangler", "d1", "migrations", "apply", "vira-creators-test", "--local", "--config", CONFIG, "--persist-to", STATE]);
   run("npx", ["wrangler", "d1", "execute", "vira-creators-test", "--local", "--config", CONFIG, "--persist-to", STATE, "--file", "scripts/test-seed.sql"]);
 
-  const server = spawn("npm", ["run", "dev", "--", "--hostname", "127.0.0.1", "--port", "8788"], {
+  const server = spawn("npm", ["run", "dev", "--", "--webpack", "--hostname", "127.0.0.1", "--port", "8788"], {
     stdio: "inherit", shell: process.platform === "win32",
     env: { ...process.env, VIRA_ADMIN_PASSWORD: PASSWORD, VIRA_TEST_WRANGLER_CONFIG: CONFIG, VIRA_TEST_D1_STATE: STATE, NEXT_TELEMETRY_DISABLED: "1" },
   });
