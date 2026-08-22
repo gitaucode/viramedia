@@ -3,6 +3,7 @@ import "./globals.css";
 import "./rhythm.css";
 import "./ui-polish.css";
 import "./workspace-soft.css";
+import "./workspace-dashboard-soft.css";
 import "./theme-controls.css";
 import AppShell from "@/components/AppShell";
 
