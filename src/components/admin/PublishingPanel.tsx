@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent,useEffect,useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent,useCallback,useEffect,useState } from "react";
 import AdminNav from "./AdminNav";
 
 type Deliverable={id:number;title:string;creator_name:string|null;status:string;client_approval_status:string;client_submission_version_id:number|null};
@@ -12,9 +13,10 @@ const label=(v:string)=>v.replaceAll("_"," ");
 const money=(n:number)=>new Intl.NumberFormat("en-KE",{style:"currency",currency:"KES",maximumFractionDigits:0}).format(n||0);
 
 export default function PublishingPanel({campaignId}:{campaignId:number}){
+ const router=useRouter();
  const [deliverables,setDeliverables]=useState<Deliverable[]>([]),[publications,setPublications]=useState<Publication[]>([]),[error,setError]=useState(""),[notice,setNotice]=useState(""),[loading,setLoading]=useState(true);
- async function load(){setLoading(true);setError("");const [r,p]=await Promise.all([fetch(`/api/admin/reporting?campaignId=${campaignId}`,{cache:"no-store"}),fetch(`/api/admin/publications?campaignId=${campaignId}`,{cache:"no-store"})]);if(r.status===401||p.status===401){location.href="/admin";return}if(r.ok){const j=await r.json();setDeliverables(j.deliverables||[])}else{const j=await r.json().catch(()=>({}));setError(j.error||"Could not load deliverables")}if(p.ok){const j=await p.json();setPublications(j.publications||[])}else{const j=await p.json().catch(()=>({}));setError(j.error||"Could not load publications")}setLoading(false)}
- useEffect(()=>{void load()},[campaignId]);
+ const load=useCallback(async()=>{setLoading(true);setError("");const [r,p]=await Promise.all([fetch(`/api/admin/reporting?campaignId=${campaignId}`,{cache:"no-store"}),fetch(`/api/admin/publications?campaignId=${campaignId}`,{cache:"no-store"})]);if(r.status===401||p.status===401){router.push("/admin");return}if(r.ok){const j=await r.json();setDeliverables(j.deliverables||[])}else{const j=await r.json().catch(()=>({}));setError(j.error||"Could not load deliverables")}if(p.ok){const j=await p.json();setPublications(j.publications||[])}else{const j=await p.json().catch(()=>({}));setError(j.error||"Could not load publications")}setLoading(false)},[campaignId,router]);
+ useEffect(()=>{void load()},[load]);
  async function create(e:FormEvent<HTMLFormElement>){e.preventDefault();const body=Object.fromEntries(new FormData(e.currentTarget).entries());const r=await fetch("/api/admin/publications",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});const j=await r.json();if(!r.ok){setError(j.error||"Could not record publication");return}e.currentTarget.reset();setError("");setNotice(`Recorded V${j.versionNumber} publication`);setTimeout(()=>setNotice(""),1800);await load()}
  async function remove(id:number){const r=await fetch("/api/admin/publications",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({id})});if(!r.ok){const j=await r.json().catch(()=>({}));setError(j.error||"Could not remove publication");return}await load()}
  const eligible=deliverables.filter(d=>d.client_approval_status==="approved"&&d.client_submission_version_id);
