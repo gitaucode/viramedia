@@ -13,7 +13,7 @@ export async function GET(request:Request){
  const db=getOpsDb();if(!db)return NextResponse.json({error:'Database unavailable'},{status:503});
  const id=Number(new URL(request.url).searchParams.get('campaignId')||0);if(!Number.isInteger(id)||id<1)return NextResponse.json({error:'Invalid campaign'},{status:400});
  const campaign=await db.prepare(`SELECT id,name,client,primary_client_id,client_objective,report_summary,report_insights,report_recommendations,start_date,end_date,status FROM campaigns WHERE id=?`).bind(id).first();
- const metrics=await db.prepare(`SELECT d.id,d.title,d.creator_id,c.full_name creator_name,d.submission_url,d.client_submission_version_id,d.status,d.client_approval_status,d.client_feedback,pm.views,pm.reach,pm.impressions,pm.likes,pm.comments,pm.shares,pm.saves,pm.clicks,pm.conversions,pm.spend FROM deliverables d LEFT JOIN creators c ON c.id=d.creator_id LEFT JOIN performance_metrics pm ON pm.deliverable_id=d.id WHERE d.campaign_id=? ORDER BY d.id`).bind(id).all();
+ const metrics=await db.prepare(`SELECT d.id,d.title,d.creator_id,c.full_name creator_name,d.submission_url,d.internal_review_version_id,d.client_submission_version_id,d.status,d.client_approval_status,d.client_feedback,pm.views,pm.reach,pm.impressions,pm.likes,pm.comments,pm.shares,pm.saves,pm.clicks,pm.conversions,pm.spend FROM deliverables d LEFT JOIN creators c ON c.id=d.creator_id LEFT JOIN performance_metrics pm ON pm.deliverable_id=d.id WHERE d.campaign_id=? ORDER BY d.id`).bind(id).all();
  return NextResponse.json({campaign,deliverables:metrics.results||[]});
 }
 
@@ -27,18 +27,22 @@ export async function PATCH(request:Request){
    return NextResponse.json({ok:true});
   }
   const deliverableId=Number(b.deliverableId);if(!Number.isInteger(deliverableId)||deliverableId<1)return NextResponse.json({error:'Invalid deliverable'},{status:400});
-  const owned=await db.prepare('SELECT d.status,d.title,d.creator_id,d.client_approval_status,camp.name campaign_name FROM deliverables d JOIN campaigns camp ON camp.id=d.campaign_id WHERE d.id=? AND d.campaign_id=?').bind(deliverableId,campaignId).first<{status:string;title:string;creator_id:number|null;client_approval_status:string;campaign_name:string}>();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
+  const owned=await db.prepare('SELECT d.status,d.title,d.creator_id,d.client_approval_status,d.internal_review_version_id,camp.name campaign_name FROM deliverables d JOIN campaigns camp ON camp.id=d.campaign_id WHERE d.id=? AND d.campaign_id=?').bind(deliverableId,campaignId).first<{status:string;title:string;creator_id:number|null;client_approval_status:string;internal_review_version_id:number|null;campaign_name:string}>();if(!owned)return NextResponse.json({error:'Deliverable not in campaign'},{status:400});
   if(b.kind==='share'){
    const status=String(b.clientApprovalStatus||'');if(!shareAllowed.has(status))return NextResponse.json({error:'Invalid client approval status'},{status:400});
-   if(status==='awaiting_client'&&!['approved','done'].includes(owned.status))return NextResponse.json({error:'Approve the deliverable internally before sharing it with the client'},{status:400});
+   if(status==='awaiting_client'&&!['approved','done'].includes(owned.status))return NextResponse.json({error:'Approve the latest submission internally before sharing it with the client'},{status:400});
    let sharedVersionId:number|null=null;
    if(status==='awaiting_client'){
+    if(!owned.internal_review_version_id)return NextResponse.json({error:'No internally approved submission version is available to share'},{status:400});
+    const approvedVersion=await db.prepare(`SELECT sv.id,sv.version_number FROM submission_versions sv JOIN deliverables d ON d.id=sv.deliverable_id WHERE sv.id=? AND d.id=?`).bind(owned.internal_review_version_id,deliverableId).first<{id:number;version_number:number}>();
+    if(!approvedVersion)return NextResponse.json({error:'The internally approved version no longer exists'},{status:409});
     const latest=await db.prepare('SELECT id,version_number FROM submission_versions WHERE deliverable_id=? ORDER BY version_number DESC LIMIT 1').bind(deliverableId).first<{id:number;version_number:number}>();
-    if(!latest)return NextResponse.json({error:'No submission version is available to share'},{status:400});
-    sharedVersionId=latest.id;
+    if(!latest||latest.id!==approvedVersion.id)return NextResponse.json({error:`V${latest?.version_number||'?'} is newer than the approved version. Review the latest version before client sharing.`},{status:409});
+    sharedVersionId=approvedVersion.id;
+    await db.prepare(`INSERT INTO review_events (deliverable_id,submission_version_id,reviewer_type,reviewer_id,action,feedback) VALUES (?,?,'admin',NULL,'shared_with_client','')`).bind(deliverableId,sharedVersionId).run();
    }
    await db.prepare(`UPDATE deliverables SET client_approval_status=?,client_submission_version_id=CASE WHEN ?='awaiting_client' THEN ? WHEN ?='not_ready' THEN NULL ELSE client_submission_version_id END,updated_at=CURRENT_TIMESTAMP WHERE id=?`).bind(status,status,sharedVersionId,status,deliverableId).run();
-   await recordActivity({actorType:'admin',campaignId,creatorId:owned.creator_id,deliverableId,eventType:'deliverable.client_review_status_changed',title:status==='awaiting_client'?'Shared with client':'Client review status changed',detail:`${owned.title}: ${owned.client_approval_status.replaceAll('_',' ')} → ${status.replaceAll('_',' ')}`,metadata:{from:owned.client_approval_status,to:status,submissionVersionId:sharedVersionId}});
+   await recordActivity({actorType:'admin',campaignId,creatorId:owned.creator_id,deliverableId,eventType:'deliverable.client_review_status_changed',title:status==='awaiting_client'?'Approved version shared with client':'Client review status changed',detail:`${owned.title}: ${owned.client_approval_status.replaceAll('_',' ')} → ${status.replaceAll('_',' ')}`,metadata:{from:owned.client_approval_status,to:status,submissionVersionId:sharedVersionId}});
    if(status==='awaiting_client'){
     const linked=await db.prepare(`SELECT c.contact_name,c.email FROM campaign_clients cc JOIN clients c ON c.id=cc.client_id WHERE cc.campaign_id=? AND c.status='active'`).bind(campaignId).all<{contact_name:string;email:string}>();
     const site=process.env.VIRA_SITE_URL||new URL(request.url).origin;
