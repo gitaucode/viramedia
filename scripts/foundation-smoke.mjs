@@ -8,7 +8,11 @@ const BASE = "http://127.0.0.1:8788";
 const PASSWORD = "vira-test-admin-password";
 
 function run(command, args) {
-  const result = spawnSync(command, args, { stdio: "inherit", shell: process.platform === "win32" });
+  const result = spawnSync(command, args, {
+    stdio: "inherit",
+    shell: process.platform === "win32",
+    env: { ...process.env, CI: "true" },
+  });
   if (result.status !== 0) process.exit(result.status ?? 1);
 }
 
@@ -17,14 +21,14 @@ function assert(condition, message) {
 }
 
 async function waitForServer() {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 90; i++) {
     try {
       const response = await fetch(`${BASE}/admin`);
       if (response.ok) return;
     } catch {}
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error("Timed out waiting for test worker");
+  throw new Error("Timed out waiting for test Next.js server");
 }
 
 async function main() {
@@ -32,11 +36,16 @@ async function main() {
 
   run("npx", ["wrangler", "d1", "migrations", "apply", "vira-creators-test", "--local", "--config", CONFIG, "--persist-to", STATE]);
   run("npx", ["wrangler", "d1", "execute", "vira-creators-test", "--local", "--config", CONFIG, "--persist-to", STATE, "--file", "scripts/test-seed.sql"]);
-  run("npx", ["opennextjs-cloudflare", "build"]);
 
-  const worker = spawn("npx", ["wrangler", "dev", "--config", CONFIG, "--local", "--port", "8788", "--persist-to", STATE], {
+  const server = spawn("npm", ["run", "dev", "--", "--hostname", "127.0.0.1", "--port", "8788"], {
     stdio: "inherit",
     shell: process.platform === "win32",
+    env: {
+      ...process.env,
+      VIRA_TEST_WRANGLER_CONFIG: CONFIG,
+      VIRA_TEST_D1_STATE: STATE,
+      NEXT_TELEMETRY_DISABLED: "1",
+    },
   });
 
   try {
@@ -123,7 +132,11 @@ async function main() {
     console.log("\n✓ Foundation smoke test passed");
     console.log(`✓ Verified ${events.length} activity events`);
   } finally {
-    worker.kill("SIGTERM");
+    if (process.platform === "win32") {
+      spawnSync("taskkill", ["/pid", String(server.pid), "/T", "/F"], { stdio: "ignore", shell: true });
+    } else {
+      server.kill("SIGTERM");
+    }
   }
 }
 
