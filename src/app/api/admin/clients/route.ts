@@ -57,7 +57,7 @@ export async function POST(request:Request){
   if(action==='unlink'){
    await db.prepare("DELETE FROM campaign_clients WHERE campaign_id=? AND client_id=?").bind(campaignId,clientId).run();
    if(campaign.primary_client_id===clientId){
-    const replacement=await db.prepare("SELECT client_id FROM campaign_clients WHERE campaign_id=? ORDER BY created_at,id LIMIT 1").bind(campaignId).first<{client_id:number}>().catch(()=>null);
+    const replacement=await db.prepare("SELECT client_id FROM campaign_clients WHERE campaign_id=? ORDER BY created_at,client_id LIMIT 1").bind(campaignId).first<{client_id:number}>();
     const replacementId=replacement?.client_id??null;
     await db.prepare("UPDATE campaigns SET primary_client_id=? WHERE id=?").bind(replacementId,campaignId).run();
     await db.prepare("UPDATE campaign_clients SET role=CASE WHEN client_id=? THEN 'primary' ELSE 'client' END WHERE campaign_id=?").bind(replacementId,campaignId).run();
