@@ -1,0 +1,28 @@
+DELETE FROM activity_events;
+DELETE FROM admin_sessions;
+DELETE FROM admin_login_attempts;
+DELETE FROM performance_metrics;
+DELETE FROM campaign_clients;
+DELETE FROM client_sessions;
+DELETE FROM client_login_codes;
+DELETE FROM clients;
+DELETE FROM creator_notification_log;
+DELETE FROM creator_sessions;
+DELETE FROM creator_login_codes;
+DELETE FROM deliverables;
+DELETE FROM shortlist_creators;
+DELETE FROM shortlists;
+DELETE FROM creators;
+DELETE FROM leads;
+
+INSERT INTO creators (
+  id,status,full_name,email,phone,city,tiktok,niches,formats,notes
+) VALUES (
+  1,'approved','Test Creator','creator-test@example.com','+254700000001','Nairobi','@testcreator','["lifestyle"]','["short_form"]','Automated test creator'
+);
+
+INSERT INTO shortlists (
+  id,name,client,objective,creator_brief,budget,status,start_date,end_date,notes
+) VALUES (
+  1,'Automated Test Campaign','Test Client','Validate the foundation workflow','Create a test short-form video','100000','planning','2026-08-22','2026-09-22','Disposable automated test data'
+);
