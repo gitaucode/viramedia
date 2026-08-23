@@ -8,7 +8,16 @@ ALTER TABLE shortlist_creators RENAME TO campaign_creators;
 ALTER TABLE campaign_creators RENAME COLUMN shortlist_id TO campaign_id;
 
 ALTER TABLE campaign_creators ADD COLUMN status TEXT NOT NULL DEFAULT 'assigned';
-ALTER TABLE campaign_creators ADD COLUMN updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP;
+-- Remote Cloudflare D1 rejects ADD COLUMN with a non-constant CURRENT_TIMESTAMP
+-- default. Use a constant fallback, backfill existing rows, and have all supported
+-- insert paths write the actual timestamp explicitly.
+ALTER TABLE campaign_creators ADD COLUMN updated_at TEXT NOT NULL DEFAULT '';
+UPDATE campaign_creators
+SET updated_at = CASE
+  WHEN created_at IS NOT NULL AND created_at != '' THEN created_at
+  ELSE CURRENT_TIMESTAMP
+END
+WHERE updated_at = '';
 ALTER TABLE campaign_creators ADD COLUMN invited_at TEXT;
 ALTER TABLE campaign_creators ADD COLUMN accepted_at TEXT;
 
@@ -101,8 +110,8 @@ FROM campaign_creators;
 CREATE TRIGGER shortlist_creators_compat_insert
 INSTEAD OF INSERT ON shortlist_creators
 BEGIN
-  INSERT OR IGNORE INTO campaign_creators (campaign_id,creator_id,created_at,status)
-  VALUES (NEW.shortlist_id,NEW.creator_id,COALESCE(NEW.created_at,CURRENT_TIMESTAMP),'assigned');
+  INSERT OR IGNORE INTO campaign_creators (campaign_id,creator_id,created_at,status,updated_at)
+  VALUES (NEW.shortlist_id,NEW.creator_id,COALESCE(NEW.created_at,CURRENT_TIMESTAMP),'assigned',CURRENT_TIMESTAMP);
 END;
 
 CREATE TRIGGER shortlist_creators_compat_update
