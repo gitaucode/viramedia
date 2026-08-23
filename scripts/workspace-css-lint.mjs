@@ -28,8 +28,7 @@ for(const line of diff.split("\n")){
   if(!file||!workspacePath.test(file)||!line.startsWith("+")||line.startsWith("+++"))continue;
   const source=line.slice(1).toLowerCase();
   for(const token of banned){
-    const escaped=token.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-    const re=new RegExp(`${escaped}(?![0-9a-f])`,`i`);
+    const re=new RegExp(`${token}(?![0-9a-f])`,"i");
     if(re.test(source))violations.push(`${file}: ${line.slice(1).trim()}  [use workspace theme token instead of ${token}]`);
   }
 }
