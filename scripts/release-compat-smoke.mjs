@@ -35,8 +35,9 @@ try{
 
   execSql(`INSERT OR IGNORE INTO shortlist_creators (shortlist_id,creator_id) VALUES (${CAMPAIGN_ID},1)`);
   execSql(`INSERT OR IGNORE INTO shortlist_creators (shortlist_id,creator_id) VALUES (${CAMPAIGN_ID},1)`);
-  rows=execSql(`SELECT campaign_id,creator_id,status FROM campaign_creators WHERE campaign_id=${CAMPAIGN_ID} AND creator_id=1`);
+  rows=execSql(`SELECT campaign_id,creator_id,status,updated_at FROM campaign_creators WHERE campaign_id=${CAMPAIGN_ID} AND creator_id=1`);
   assert(rows.length===1&&rows[0].status==='assigned','legacy shortlist creator INSERT did not reach canonical assignment exactly once');
+  assert(typeof rows[0].updated_at==='string'&&rows[0].updated_at.length>0,'legacy shortlist creator INSERT did not populate updated_at');
 
   execSql(`DELETE FROM shortlist_creators WHERE shortlist_id=${CAMPAIGN_ID} AND creator_id=1`);
   rows=execSql(`SELECT COUNT(*) count FROM campaign_creators WHERE campaign_id=${CAMPAIGN_ID} AND creator_id=1`);
