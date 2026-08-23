@@ -8,12 +8,13 @@ const ADMIN_ROUTES=[
   "/admin/campaigns",
   "/admin/campaigns/1",
   "/admin/campaigns/1/publishing",
+  "/admin/opportunities",
   "/admin/reporting",
   "/admin/clients",
   "/admin/creators",
 ];
 const CLIENT_ROUTES=["/client/login","/client/dashboard","/client/campaigns/1"];
-const PORTAL_ROUTES=["/portal/login","/portal/dashboard","/portal/campaigns/1"];
+const PORTAL_ROUTES=["/portal/login","/portal/dashboard","/portal/opportunities","/portal/campaigns/1"];
 const THEMES=["light","dark"] as const;
 
 const EXPECTED_BG={light:"rgb(246, 246, 242)",dark:"rgb(17, 18, 15)"} as const;
