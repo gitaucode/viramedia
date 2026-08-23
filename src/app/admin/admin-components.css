@@ -1,0 +1,28 @@
+.admin-btn-secondary{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  max-width:100%;
+  margin:2px 0 14px;
+  padding:9px 11px;
+  border:1px solid var(--app-line-strong);
+  border-radius:var(--radius-control);
+  background:var(--app-surface-2);
+  color:var(--app-text);
+  text-decoration:none;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:700;
+  transition:background .15s ease,border-color .15s ease,color .15s ease;
+}
+.admin-btn-secondary:hover{
+  background:var(--app-surface-3);
+  border-color:var(--app-line-strong);
+  color:var(--app-text);
+  text-decoration:none;
+}
+.admin-btn-secondary:focus-visible{
+  outline:2px solid var(--app-orange);
+  outline-offset:2px;
+}
