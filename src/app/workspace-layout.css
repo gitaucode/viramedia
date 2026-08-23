@@ -114,4 +114,11 @@
     margin-top:16px;
     gap:16px;
   }
+
+  /* Appearance is a core workspace control, not an optional desktop action. */
+  .admin-nav-actions .theme-button,
+  .client-nav-actions .theme-button,
+  .portal-nav-actions .theme-button{
+    display:grid!important;
+  }
 }
