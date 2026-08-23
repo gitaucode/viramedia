@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,3 +40,44 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  ui-consistency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: true
+      NEXT_TELEMETRY_DISABLED: 1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Workspace CSS consistency gate
+        run: npm run ui:css
+
+      - name: Authenticated route and theme matrix
+        run: npm run ui:test
+
+      - name: Upload UI screenshots and traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-consistency-${{ github.sha }}
+          path: |
+            test-results/
+            playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
