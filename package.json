@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/foundation-smoke.mjs && node scripts/release-compat-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/publishing-smoke.mjs && node --check worker.mjs && node scripts/automation-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/finance-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/command-centre-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/stabilization-smoke.mjs",
+    "test": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/foundation-smoke.mjs && node scripts/release-compat-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/publishing-smoke.mjs && node --check worker.mjs && node scripts/automation-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/finance-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/command-centre-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/opportunity-smoke.mjs && node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && node scripts/stabilization-smoke.mjs",
     "validate": "npm run test && npm run typecheck && npm run lint && npm run build",
     "ui:css": "node scripts/workspace-css-lint.mjs",
     "ui:setup": "node scripts/ui-consistency-setup.mjs",
