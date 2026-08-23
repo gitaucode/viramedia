@@ -29,7 +29,7 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
   const {id}=await params,deliverableId=Number(id);if(!Number.isInteger(deliverableId)||deliverableId<1)return NextResponse.json({error:'Invalid deliverable'},{status:400});
   const db=getOpsDb();if(!db)return NextResponse.json({error:'Database unavailable'},{status:503});
   const access=await getAccess(deliverableId,creator.id);if(!access)return NextResponse.json({error:'Not found'},{status:404});
-  if(['done'].includes(access.status))return NextResponse.json({error:'This deliverable is already complete'},{status:400});
+  if(['approved','done'].includes(access.status))return NextResponse.json({error:'This deliverable is already approved. A new version can only be submitted after changes are requested.'},{status:409});
 
   let uploadedKey:string|null=null;
   try{
@@ -65,9 +65,9 @@ export async function POST(request:Request,{params}:{params:Promise<{id:string}>
     if(!result?.id)throw new Error('Could not store submission version');
     const mediaUrl=sourceType==='r2'?`/api/media/submissions/${result.id}`:externalMediaUrl;
     await db.prepare("UPDATE deliverables SET submission_url=?,submission_note=?,status='submitted',submitted_at=CURRENT_TIMESTAMP,approved_at=NULL,internal_review_version_id=NULL,client_approval_status='not_ready',client_submission_version_id=NULL,client_feedback='',client_reviewed_at=NULL,updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(mediaUrl,note,deliverableId).run();
+    uploadedKey=null;
     await recordActivity({actorType:'creator',actorId:creator.id,campaignId:access.campaign_id,creatorId:creator.id,deliverableId,eventType:'deliverable.submitted',title:`Creator submitted V${versionNumber}`,detail:access.title,metadata:{submissionVersionId:result.id,versionNumber,sourceType,fileName,fileSize}});
     await sendEmail(`Creator submission — ${access.campaign_name} / ${access.title}`,`<div style="font-family:Arial,sans-serif"><h2>Creator submission received</h2><p><strong>${creator.full_name}</strong> submitted <strong>V${versionNumber}</strong> of <strong>${access.title}</strong> for ${access.campaign_name}.</p><p>${note||''}</p></div>`,creator.email);
-    uploadedKey=null;
     return NextResponse.json({ok:true,status:'submitted',version:{id:result.id,versionNumber,sourceType,url:mediaUrl,fileName,mimeType,fileSize,note}});
   }catch(error){
     if(uploadedKey){const bucket=getMediaBucket();if(bucket)await bucket.delete(uploadedKey).catch(()=>undefined)}

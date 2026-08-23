@@ -15,8 +15,13 @@ async function send(to:string[],subject:string,html:string,replyTo?:string){
   const apiKey=process.env.RESEND_API_KEY;
   const from=process.env.VIRA_FROM_EMAIL||process.env.NOMA_FROM_EMAIL;
   if(!apiKey||!from)return {ok:false,configurationMissing:true as const};
-  const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json","User-Agent":"vira-media/1.0"},body:JSON.stringify({from,to,subject,html,...(replyTo?{reply_to:replyTo}:{})})});
-  return {ok:response.ok,configurationMissing:false as const};
+  try{
+    const response=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json","User-Agent":"vira-media/1.0"},body:JSON.stringify({from,to,subject,html,...(replyTo?{reply_to:replyTo}:{})})});
+    return {ok:response.ok,configurationMissing:false as const};
+  }catch(error){
+    console.error("Vira email delivery failed",error);
+    return {ok:false,configurationMissing:false as const};
+  }
 }
 
 export async function sendEmail(subject:string,html:string,replyTo?:string){
