@@ -1,0 +1,159 @@
+/*
+ * Workspace theme compatibility layer.
+ *
+ * Legacy admin/client/portal route styles predate the Vira Editorial theme and
+ * still contain hard-coded dark colors. Keep those files for layout while this
+ * final layer owns color so a single saved appearance applies across every
+ * authenticated route.
+ */
+
+.admin-shell,.client-shell,.portal-shell{
+  min-height:100dvh;
+  background:var(--app-bg)!important;
+  color:var(--app-text)!important;
+}
+
+/* Navigation and high-level surfaces */
+.admin-nav,.client-nav,.portal-nav{
+  background:color-mix(in srgb,var(--app-bg) 94%,transparent)!important;
+  border-color:var(--app-line)!important;
+}
+.admin-login,.admin-setup,.creator-table-wrap,.shortlist-panel,.creator-drawer,
+.ops-panel,.campaign-card,.workspace-panel,.deliverable-admin-card,.admin-submission,
+.report-panel,.report-content,
+.client-card,.client-panel,.client-summary,.client-content-card,.client-narrative article,
+.portal-card,.portal-panel,.portal-brief,.deliverable-card,.portal-submission{
+  background:var(--app-surface)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-line)!important;
+}
+
+/* Secondary / nested surfaces */
+.admin-stats button,.ops-kpis a,.workspace-kpis>div,.attention-list button,
+.creator-roster article,.workspace-deliverables article,.review-list article,
+.client-stat,.client-metric,.client-content-metrics div,
+.portal-stat,.portal-campaign,.portal-list-row,
+.deliverable-list,.client-feedback,.portal-feedback{
+  background:var(--app-surface)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-line)!important;
+}
+
+/* Interactive hover states */
+.creator-table tbody tr:hover,.ops-row:hover,.command-item:hover,.campaign-card:hover,
+.client-campaign:hover,.portal-campaign:hover,.admin-stats button:hover,
+.attention-list button:hover{
+  background:var(--app-surface-2)!important;
+}
+
+/* Inputs and editable controls */
+.admin-shell input,.admin-shell textarea,.admin-shell select,
+.client-shell input,.client-shell textarea,.client-shell select,
+.portal-shell input,.portal-shell textarea,.portal-shell select,
+.report-selector select,.report-copy-form textarea,.report-content-head select,
+.metric-form input,.report-inline select,.review-actions textarea,.deliverable-head select{
+  background:var(--app-surface-2)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-line-strong)!important;
+}
+.admin-shell input::placeholder,.admin-shell textarea::placeholder,
+.client-shell input::placeholder,.client-shell textarea::placeholder,
+.portal-shell input::placeholder,.portal-shell textarea::placeholder{
+  color:var(--app-muted-2)!important;
+}
+
+/* Borders that legacy route styles force to dark grays */
+.creator-table th,.creator-table td,.table-title,.shortlist-row,.drawer-section,
+.assigned-creators,.assigned-creator,.deliverable-row,.review-box,.payment-box,
+.new-deliverable-form,.workspace-hero,.workspace-tabs,.workspace-person,.assign-bar,
+.review-actions,.client-review-bar,.metrics-list form,.finance-list article,
+.activity-list:before,.report-client,.metric-form,.client-panel-head,.client-campaign,
+.client-review,.portal-panel-head,.portal-campaign,.portal-list-row,.portal-form{
+  border-color:var(--app-line)!important;
+}
+
+/* Text hierarchy */
+.admin-shell h1,.admin-shell h2,.admin-shell h3,.admin-shell strong,
+.client-shell h1,.client-shell h2,.client-shell h3,.client-shell strong,
+.portal-shell h1,.portal-shell h2,.portal-shell h3,.portal-shell strong{
+  color:var(--app-text)!important;
+}
+.admin-top p,.admin-count span,.admin-loader,.table-title span,.creator-table td>span,
+.creator-handle,.drawer-copy,.ops-muted,.campaign-card p,.campaign-meta,
+.workspace-title-row p,.panel-head>strong,.workspace-person span,.deliverable-head span,
+.workspace-deliverables p,.client-review-bar,.activity-list time,.activity-list span,
+.report-client span,.report-content-head span,
+.client-top p,.client-panel-head span,.client-campaign p,.client-meta,.client-back,
+.client-summary p,.client-content-card .creator,.client-narrative p,
+.portal-card p,.portal-top p,.portal-panel-head span,.portal-campaign p,.portal-meta,
+.portal-list-row span,.portal-empty,.portal-back,.portal-brief p,.deliverable-card .due,
+.deliverable-card .instructions,.portal-submission p{
+  color:var(--app-muted)!important;
+}
+
+/* Metric labels and helper labels */
+.admin-stats span,.ops-kpis span,.workspace-kpis span,.workspace-field,.assign-bar span,
+.metrics-list label,.finance-list article>div span,.report-form label,
+.report-selector label,.report-copy-form label,.report-content-head label,.metric-form label,
+.client-stat span,.client-metric span,.client-content-metrics span,
+.portal-stat span,.portal-card label,.portal-form label{
+  color:var(--app-muted)!important;
+}
+
+/* Keep semantic accent links/buttons, but make neutral buttons theme aware. */
+.ops-secondary,.client-secondary,.portal-secondary,.client-review .changes{
+  background:var(--app-surface-3)!important;
+  color:var(--app-text)!important;
+  border-color:var(--app-line-strong)!important;
+}
+.admin-nav-links a,.admin-nav-actions a,.client-nav-actions,.portal-nav-actions,
+.workspace-tabs button,.workspace-back{
+  color:var(--app-muted)!important;
+}
+.admin-nav-links a:hover,.admin-nav-actions a:hover,.workspace-tabs button:hover,.workspace-back:hover{
+  color:var(--app-text)!important;
+}
+.admin-nav-links a.active,.workspace-tabs button.active{
+  color:var(--app-text)!important;
+}
+
+/* Reporting had its own permanently-dark card/control palette. */
+.report-body,.report-content-list,.report-deliverables{color:var(--app-text)!important}
+.report-content{background:var(--app-surface-2)!important}
+.report-copy-form textarea,.report-selector select,.report-content-head select,.metric-form input,.report-inline select{
+  color-scheme:inherit;
+}
+
+/* Creator directory nested surfaces. */
+.mini-pills span,.mini-pills b{
+  background:var(--app-surface-3)!important;
+  border-color:var(--app-line)!important;
+  color:var(--app-text)!important;
+}
+.creator-facts{border-color:var(--app-line)!important}
+.creator-facts div{border-color:var(--app-line)!important}
+.creator-facts span{color:var(--app-muted)!important}
+
+/* Client / creator portal feedback keeps semantic meaning without forcing the page theme. */
+.client-feedback,.portal-feedback{
+  background:color-mix(in srgb,var(--app-surface) 88%,#fe2c55 12%)!important;
+}
+
+/* Explicit appearance also owns native form controls. */
+html[data-ops-theme="dark"] .admin-shell,
+html[data-ops-theme="dark"] .client-shell,
+html[data-ops-theme="dark"] .portal-shell{color-scheme:dark}
+html[data-ops-theme="light"] .admin-shell,
+html[data-ops-theme="light"] .client-shell,
+html[data-ops-theme="light"] .portal-shell{color-scheme:light}
+
+@media(prefers-color-scheme:dark){
+  html:not([data-ops-theme]) .admin-shell,
+  html:not([data-ops-theme]) .client-shell,
+  html:not([data-ops-theme]) .portal-shell{color-scheme:dark}
+}
+@media(prefers-color-scheme:light){
+  html:not([data-ops-theme]) .admin-shell,
+  html:not([data-ops-theme]) .client-shell,
+  html:not([data-ops-theme]) .portal-shell{color-scheme:light}
+}
