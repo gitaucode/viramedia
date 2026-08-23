@@ -1,0 +1,117 @@
+/* Workspace layout rhythm guards
+   Imported after workspace.css so structural spacing stays consistent across
+   admin, client, and creator portal surfaces without changing visual tokens. */
+
+.admin-shell .ops-columns{
+  margin-top:18px;
+  gap:18px;
+  align-items:stretch;
+}
+
+.admin-shell .ops-columns > *,
+.admin-shell .ops-kpis > *,
+.admin-shell .ops-panel,
+.client-shell .client-panel,
+.client-shell .client-card,
+.portal-shell .portal-panel,
+.portal-shell .portal-card,
+.campaign-workspace .workspace-grid > *,
+.campaign-workspace .workspace-kpis > *{
+  min-width:0;
+}
+
+/* Command Centre snapshot uses its own metric primitive instead of borrowing
+   the campaign workspace KPI class. */
+.admin-shell .ops-snapshot-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  padding:18px 21px 21px;
+}
+
+.admin-shell .ops-snapshot-card{
+  min-width:0;
+  min-height:88px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:16px;
+  padding:16px 17px;
+  background:var(--app-surface-2);
+  border:1px solid var(--app-line);
+  border-radius:10px;
+}
+
+.admin-shell .ops-snapshot-card span{
+  display:block;
+  color:var(--app-muted);
+  font-size:11px;
+  line-height:1.35;
+  font-weight:650;
+}
+
+.admin-shell .ops-snapshot-card strong{
+  display:block;
+  color:var(--app-text);
+  font-size:25px;
+  line-height:1;
+  letter-spacing:-.035em;
+}
+
+/* Shared metric grids must always be real grids. This prevents labels and
+   values collapsing into unspaced inline text when a page reuses the class. */
+.admin-shell .workspace-kpis,
+.client-shell .client-metric-grid,
+.client-shell .client-stats,
+.portal-shell .portal-stats{
+  display:grid;
+  gap:12px;
+}
+
+.admin-shell .workspace-kpis{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+
+.admin-shell .workspace-kpis > div{
+  min-width:0;
+  padding:16px 17px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.admin-shell .workspace-kpis span,
+.admin-shell .workspace-kpis strong{
+  display:block;
+}
+
+/* Panel children should never visually collide with the next panel. */
+.admin-shell .ops-panel + .ops-panel,
+.client-shell .client-panel + .client-panel,
+.portal-shell .portal-panel + .portal-panel{
+  margin-top:18px;
+}
+
+/* Do not add vertical margin to panels that are siblings inside an explicit grid. */
+.admin-shell .ops-columns > .ops-panel + .ops-panel,
+.campaign-workspace .workspace-grid > .workspace-panel + .workspace-panel{
+  margin-top:0;
+}
+
+@media(max-width:1050px){
+  .admin-shell .workspace-kpis{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:720px){
+  .admin-shell .ops-snapshot-grid,
+  .admin-shell .workspace-kpis{
+    grid-template-columns:1fr;
+  }
+
+  .admin-shell .ops-columns{
+    margin-top:16px;
+    gap:16px;
+  }
+}
