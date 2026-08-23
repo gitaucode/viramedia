@@ -17,7 +17,7 @@ The Playwright matrix exercises these authenticated surfaces:
 - Client login, dashboard and campaign
 - Creator Portal login, dashboard and campaign
 
-Every route is checked in explicit Light and Dark themes on desktop and mobile projects. The current matrix produces 56 route/theme/viewport checks and screenshot artifacts per CI run.
+Every route is checked in explicit Light and Dark themes on desktop and mobile projects. The current matrix produces 56 route/theme/viewport checks and screenshot artifacts per run.
 
 ## Automatic contract checks
 
@@ -31,7 +31,7 @@ Each route must:
 6. Use shared Admin navigation and expose the shared appearance control on Admin routes.
 7. Preserve specific regression contracts for previously discovered bugs, such as the Creator Directory secondary action not falling back to browser-default underlined link styling.
 
-Screenshots are uploaded as CI artifacts for every successful or failed matrix run. They are diagnostic artifacts rather than committed pixel baselines, so the contract gate remains stable across font-rendering/OS differences while still giving reviewers a visual record.
+Screenshots are saved locally under `test-results/` and `playwright-report/`. They are diagnostic artifacts rather than committed pixel baselines, so the contract gate remains stable across font-rendering/OS differences while still providing a visual record.
 
 ## CSS change gate
 
@@ -41,18 +41,32 @@ Semantic brand and status colors remain allowed.
 
 Legacy CSS is not mass-rewritten by this check. The rule is forward-looking: existing debt can be migrated deliberately, but new changes cannot add more neutral-color debt.
 
-## Commands
+## Local commands
+
+Install Chromium once on a development machine:
 
 ```sh
-npm run ui:css
-npm run ui:test
+npm run ui:install
+```
+
+Run only the UI consistency suite:
+
+```sh
 npm run ui:consistency
 ```
 
+Run the complete pre-release gate:
+
+```sh
+npm run release:check
+```
+
+`release:check` runs the existing smoke tests, typecheck, lint, production build, CSS consistency gate and the full authenticated Playwright matrix.
+
 `ui:test` resets and prepares an isolated local D1 state under `.wrangler/ui-test-state`; it does not use production D1, R2, sessions or email delivery.
 
-## CI release gate
+## No GitHub Actions dependency
 
-The `ui-consistency` job installs Playwright Chromium, runs the CSS gate, prepares disposable test data, executes the authenticated route/theme matrix and uploads `test-results/` plus `playwright-report/` for inspection.
+Vira intentionally does not use GitHub-hosted Actions runners. The repository owner does not want paid GitHub Actions usage, and the account currently has an Actions billing lock.
 
-A failing UI consistency job should block release until the regression is understood. Intentional design changes should update the contract only when the design-system behavior itself changes, not merely to silence a failing route.
+The UI suite and release checks remain part of the repository and are run locally before a release. Cloudflare deployment from `main` remains independent of GitHub Actions.
