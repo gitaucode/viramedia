@@ -6,6 +6,7 @@ export default defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
       // Vira's portal/admin screens load remote data in client effects. The
       // React 19 rule treats these established async loaders as blocking
@@ -17,6 +18,11 @@ export default defineConfig([
       "react/jsx-no-comment-textnodes": "warn",
       "react/no-unescaped-entities": "warn",
       "@next/next/no-html-link-for-pages": "warn",
+    },
+  },
+  {
+    files: ["**/*.{ts,tsx}"],
+    rules: {
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
