@@ -26,5 +26,5 @@ export default defineConfig([
       "@typescript-eslint/no-explicit-any": "warn",
     },
   },
-  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  globalIgnores([".next/**", ".open-next/**", "out/**", "build/**", "next-env.d.ts"]),
 ]);
