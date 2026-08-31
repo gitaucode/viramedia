@@ -257,7 +257,6 @@ html[data-ops-theme="dark"] .status-cancelled,html[data-ops-theme="dark"] .statu
   .campaign-workspace .workspace-panel{padding:22px!important}
   .campaign-workspace .workspace-tabs{padding-inline:12px!important}
   .campaign-workspace .workspace-field-grid{grid-template-columns:1fr!important}
-  .admin-nav-actions .theme-button,.client-nav-actions .theme-button,.portal-nav-actions .theme-button{display:none}
   .admin-shell .ops-kpis,.admin-shell .ops-columns{grid-template-columns:1fr}
   .admin-shell .ops-kpis a{min-height:96px}
 }

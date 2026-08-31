@@ -94,7 +94,7 @@ export default function CampaignWorkspace({campaignId}:{campaignId:number}){
  const finance=useMemo(()=>deliverables.reduce((a,d)=>({committed:a.committed+Number(d.creator_fee||0),paid:a.paid+(d.payment_status==="paid"?Number(d.creator_fee||0):0),outstanding:a.outstanding+(d.payment_status!=="paid"?Number(d.creator_fee||0):0)}),{committed:0,paid:0,outstanding:0}),[deliverables]);
  const progress=deliverables.length?Math.round(deliverables.filter(d=>["approved","done"].includes(d.status)).length/deliverables.length*100):0;
 
- if(loading)return <main className="admin-shell admin-centre"><div className="admin-loader">Loading campaign workspace…</div></main>;
+ if(loading)return <main className="admin-shell"><AdminNav/><div className="admin-centre"><div className="admin-loader">Loading campaign workspace...</div></div></main>;
  if(!campaign)return <main className="admin-shell"><AdminNav/><div className="admin-workspace"><div className="admin-empty"><h2>Campaign not found.</h2><a href="/admin/campaigns">← Back to campaigns</a></div></div></main>;
  return <main className="admin-shell"><AdminNav/><div className="admin-workspace campaign-workspace">
   <header className="workspace-hero"><div><a className="workspace-back" href="/admin/campaigns">← Campaigns</a><div className="workspace-title-row"><div><span className="admin-kicker">CAMPAIGN WORKSPACE</span><h1>{campaign.name}</h1><p>{campaign.client||"No client set"} · {campaign.start_date||"No start date"} → {campaign.end_date||"No end date"}</p></div><select className={`workspace-status status-${campaign.status}`} value={campaign.status} onChange={e=>void patchCampaign({status:e.target.value})}>{campaignStatuses.map(s=><option key={s}>{s}</option>)}</select></div></div></header>
