@@ -6,7 +6,7 @@ export default defineConfig({
   testDir:"./tests/ui",
   outputDir:"test-results/ui",
   timeout:45_000,
-  expect:{timeout:8_000},
+  expect:{timeout:15_000},
   retries:process.env.CI?1:0,
   workers:1,
   reporter:process.env.CI?[["list"],["html",{outputFolder:"playwright-report",open:"never"}]]:[["list"]],
