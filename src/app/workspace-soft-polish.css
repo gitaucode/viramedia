@@ -1,0 +1,319 @@
+/* Vira workspace soft-polish layer
+   Final visual layer for authenticated Admin, Client and Creator Portal routes.
+   Keep layout/data behavior untouched while reducing visual harshness and density. */
+
+.admin-shell,.client-shell,.portal-shell{
+  --radius-card:18px;
+  --radius-panel:20px;
+  --radius-control:12px;
+  --radius-soft:14px;
+  --app-shadow:0 14px 38px color-mix(in srgb,var(--app-text) 7%,transparent);
+  --app-shadow-hover:0 18px 46px color-mix(in srgb,var(--app-text) 10%,transparent);
+  --app-focus:0 0 0 3px color-mix(in srgb,var(--app-orange) 18%,transparent);
+  --app-soft-fill:color-mix(in srgb,var(--app-surface) 72%,var(--app-surface-2));
+}
+
+/* Softer page rhythm and calmer headings */
+.admin-workspace,.client-workspace,.portal-workspace{
+  padding-top:30px!important;
+  padding-bottom:52px!important;
+}
+.admin-top,.client-top,.portal-top,.admin-page-head{
+  margin-bottom:28px!important;
+}
+.admin-top h1,.client-top h1,.portal-top h1,.admin-page-head h1{
+  letter-spacing:-.035em!important;
+  line-height:1.04!important;
+}
+.admin-top p,.client-top p,.portal-top p,.admin-page-head p{
+  line-height:1.65!important;
+  max-width:720px;
+}
+
+/* Navigation should feel like a calm workspace header, not a control strip. */
+.admin-nav,.client-nav,.portal-nav{
+  background:color-mix(in srgb,var(--app-bg) 88%,transparent)!important;
+  border-bottom-color:color-mix(in srgb,var(--app-line) 72%,transparent)!important;
+  backdrop-filter:blur(18px) saturate(125%);
+}
+.admin-nav-links a,.admin-nav-actions a,.client-nav-actions a,.portal-nav-actions a{
+  border-radius:10px!important;
+  transition:background .18s ease,color .18s ease,transform .18s ease;
+}
+.admin-nav-links a:hover,.admin-nav-actions a:hover,.client-nav-actions a:hover,.portal-nav-actions a:hover{
+  background:var(--app-surface-2)!important;
+}
+.admin-nav-links a.active,.portal-nav-actions a.active{
+  background:var(--app-surface)!important;
+  box-shadow:0 1px 0 color-mix(in srgb,var(--app-text) 5%,transparent),0 5px 16px color-mix(in srgb,var(--app-text) 5%,transparent)!important;
+}
+.theme-button{
+  border-radius:12px!important;
+  transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease;
+}
+.theme-button:hover{transform:translateY(-1px)}
+
+/* Primary surface language */
+.admin-login,.admin-setup,.creator-table-wrap,.shortlist-panel,.creator-drawer,
+.ops-panel,.campaign-card,.workspace-panel,.deliverable-admin-card,.admin-submission,
+.report-panel,.report-content,
+.client-card,.client-panel,.client-summary,.client-content-card,.client-narrative article,
+.portal-card,.portal-panel,.portal-brief,.deliverable-card,.portal-submission,
+.opportunity-card{
+  border-radius:var(--radius-panel)!important;
+  border-color:color-mix(in srgb,var(--app-line) 78%,transparent)!important;
+  box-shadow:var(--app-shadow)!important;
+}
+.ops-panel,.workspace-panel,.client-panel,.portal-panel,.creator-table-wrap,.shortlist-panel,.report-panel{
+  overflow:hidden;
+}
+
+/* Nested cards should read as groups, not more boxes. */
+.admin-stats button,.ops-kpis a,.workspace-kpis>div,.ops-snapshot-card,.attention-list button,
+.creator-roster article,.workspace-deliverables article,.review-list article,
+.client-stat,.client-metric,.client-content-metrics div,.client-campaign,
+.portal-stat,.portal-campaign,.portal-list-row,
+.deliverable-list,.client-feedback,.portal-feedback,
+.application-facts span,.opportunity-tags span{
+  border-radius:var(--radius-soft)!important;
+  border-color:color-mix(in srgb,var(--app-line) 72%,transparent)!important;
+}
+.admin-stats button,.ops-kpis a,.workspace-kpis>div,.ops-snapshot-card,
+.client-stat,.client-metric,.portal-stat{
+  box-shadow:0 8px 24px color-mix(in srgb,var(--app-text) 4%,transparent)!important;
+}
+
+/* Give dashboard metrics breathing room and remove the spreadsheet feel. */
+.admin-shell .ops-kpis,.admin-stats,.client-stats,.portal-stats,.client-metric-grid,.workspace-kpis{
+  gap:14px!important;
+}
+.admin-shell .ops-kpis a{
+  border-radius:16px!important;
+  padding:21px 22px!important;
+}
+.admin-shell .ops-kpis a:hover,.campaign-card:hover,.client-campaign:hover,.portal-campaign:hover,.opportunity-card:hover{
+  transform:translateY(-2px);
+  box-shadow:var(--app-shadow-hover)!important;
+  border-color:var(--app-line-strong)!important;
+}
+.ops-snapshot-card{padding:17px 18px!important}
+
+/* Panel headers get more separation without hard divider bars. */
+.ops-panel-head,.panel-head,.client-panel-head,.portal-panel-head,.report-content-head{
+  padding:20px 22px!important;
+  border-bottom-color:color-mix(in srgb,var(--app-line) 65%,transparent)!important;
+}
+.ops-panel-head h2,.panel-head h2,.client-panel-head h2,.portal-panel-head h2{
+  letter-spacing:-.02em!important;
+}
+.ops-row,.command-item,.portal-list-row{
+  transition:background .16s ease,transform .16s ease;
+}
+.ops-row:hover,.command-item:hover,.portal-list-row:hover{
+  background:var(--app-surface-2)!important;
+}
+
+/* Controls: larger hit areas, gentler corners, soft focus instead of hard outlines. */
+.admin-shell input,.admin-shell textarea,.admin-shell select,
+.client-shell input,.client-shell textarea,.client-shell select,
+.portal-shell input,.portal-shell textarea,.portal-shell select,
+.report-selector select,.report-copy-form textarea,.report-content-head select,
+.metric-form input,.report-inline select,.review-actions textarea,.deliverable-head select{
+  border-radius:var(--radius-control)!important;
+  min-height:42px;
+  padding:11px 13px!important;
+  border-color:color-mix(in srgb,var(--app-line-strong) 82%,transparent)!important;
+  outline:none!important;
+  transition:border-color .16s ease,box-shadow .16s ease,background .16s ease;
+}
+.admin-shell textarea,.client-shell textarea,.portal-shell textarea{min-height:96px}
+.admin-shell input:focus,.admin-shell textarea:focus,.admin-shell select:focus,
+.client-shell input:focus,.client-shell textarea:focus,.client-shell select:focus,
+.portal-shell input:focus,.portal-shell textarea:focus,.portal-shell select:focus{
+  border-color:color-mix(in srgb,var(--app-orange) 58%,var(--app-line-strong))!important;
+  box-shadow:var(--app-focus)!important;
+}
+.client-shell input:focus,.client-shell textarea:focus,.client-shell select:focus,
+.portal-shell input:focus,.portal-shell textarea:focus,.portal-shell select:focus{
+  border-color:color-mix(in srgb,var(--app-cyan) 58%,var(--app-line-strong))!important;
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--app-cyan) 18%,transparent)!important;
+}
+
+/* Buttons feel clickable without looking like hard utility blocks. */
+.ops-primary,.ops-secondary,.client-button,.client-secondary,.portal-button,.portal-secondary,
+.portal-btn,.application-actions button,.opportunity-actions button,.opportunity-save button{
+  min-height:40px;
+  border-radius:12px!important;
+  padding:10px 15px!important;
+  font-weight:700!important;
+  transition:transform .16s ease,box-shadow .16s ease,background .16s ease,border-color .16s ease!important;
+}
+.ops-primary:hover,.ops-secondary:hover,.client-button:hover,.client-secondary:hover,.portal-button:hover,.portal-secondary:hover,
+.portal-btn:hover,.application-actions button:hover,.opportunity-actions button:hover,.opportunity-save button:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px color-mix(in srgb,var(--app-text) 8%,transparent)!important;
+}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{
+  outline:2px solid color-mix(in srgb,var(--app-orange) 70%,transparent)!important;
+  outline-offset:3px!important;
+}
+.portal-shell button:focus-visible,.portal-shell a:focus-visible,.client-shell button:focus-visible,.client-shell a:focus-visible{
+  outline-color:color-mix(in srgb,var(--app-cyan) 70%,transparent)!important;
+}
+
+/* Campaigns and deliverables */
+.campaign-card{
+  border-radius:18px!important;
+  padding:26px!important;
+}
+.campaign-meta{padding-top:15px!important}
+.campaign-workspace .workspace-status{border-radius:12px!important;padding-inline:12px!important}
+.campaign-workspace .workspace-tabs{
+  gap:6px!important;
+  padding:9px!important;
+  border-radius:14px!important;
+  background:var(--app-soft-fill)!important;
+}
+.campaign-workspace .workspace-tabs button{
+  border-radius:10px!important;
+  padding:10px 14px!important;
+}
+.campaign-workspace .workspace-tabs button.active{
+  background:var(--app-surface)!important;
+  box-shadow:0 6px 18px color-mix(in srgb,var(--app-text) 6%,transparent)!important;
+}
+.deliverable-admin-card,.deliverable-card,.admin-submission,.portal-submission{
+  padding:20px!important;
+}
+
+/* Tables: retain density but soften separators and hover behavior. */
+.creator-table th,.creator-table td{
+  padding:15px 17px!important;
+  border-color:color-mix(in srgb,var(--app-line) 68%,transparent)!important;
+}
+.creator-table th{
+  background:var(--app-soft-fill)!important;
+  color:var(--app-muted)!important;
+  font-size:10px!important;
+  letter-spacing:.04em!important;
+}
+.creator-table tbody tr{transition:background .16s ease}
+.creator-table tbody tr:hover{background:var(--app-surface-2)!important}
+.mini-pills span,.mini-pills b{border-radius:999px!important;padding:5px 8px!important}
+
+/* Empty states should feel intentional and helpful, not like missing data. */
+.admin-empty,.ops-empty,.portal-empty,.client-empty,.opportunity-empty{
+  min-height:120px;
+  padding:28px!important;
+  border-radius:var(--radius-soft)!important;
+  color:var(--app-muted)!important;
+}
+.admin-empty h2,.portal-empty h2,.client-empty h2{margin-bottom:8px!important}
+
+/* Opportunities: specifically remove the sharp, mechanical treatment. */
+.opportunities-admin-grid{gap:20px!important}
+.opportunity-admin-main{gap:20px!important}
+.opportunity-campaign-list,.opportunity-settings,.opportunity-applications{
+  border-radius:var(--radius-panel)!important;
+}
+.opportunity-campaign-row{
+  padding:17px 19px!important;
+  background:transparent!important;
+  border-bottom-color:color-mix(in srgb,var(--app-line) 65%,transparent)!important;
+  transition:background .16s ease,padding .16s ease!important;
+}
+.opportunity-campaign-row:hover{background:var(--app-surface-2)!important}
+.opportunity-campaign-row.active{
+  background:var(--app-surface-2)!important;
+  box-shadow:inset 3px 0 var(--app-orange)!important;
+}
+.opportunity-fields{gap:16px!important;padding:22px!important}
+.opportunity-fields label,.opportunity-form label{
+  font-size:11px!important;
+  text-transform:none!important;
+  letter-spacing:0!important;
+  font-weight:650!important;
+}
+.opportunity-save{padding:17px 22px!important;border-top-color:color-mix(in srgb,var(--app-line) 65%,transparent)!important}
+.application-card{
+  margin:14px!important;
+  padding:18px!important;
+  border:1px solid color-mix(in srgb,var(--app-line) 72%,transparent)!important;
+  border-radius:16px!important;
+  background:var(--app-surface-2)!important;
+  box-shadow:0 8px 22px color-mix(in srgb,var(--app-text) 4%,transparent)!important;
+}
+.application-card:last-child{border-bottom:1px solid color-mix(in srgb,var(--app-line) 72%,transparent)!important}
+.application-facts{gap:10px!important}
+.application-facts span{
+  padding:11px 12px!important;
+  background:var(--app-surface)!important;
+}
+.application-facts b{text-transform:none!important;letter-spacing:0!important;font-size:10px!important}
+
+/* Creator-facing opportunity cards */
+.portal-notice{
+  border-radius:14px!important;
+  padding:14px 16px!important;
+}
+.opportunity-grid{gap:18px!important}
+.opportunity-card{
+  padding:24px!important;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+.opportunity-card h2{letter-spacing:-.03em!important}
+.opportunity-tags{gap:8px!important}
+.opportunity-tags span{
+  border-radius:999px!important;
+  padding:6px 9px!important;
+}
+.opportunity-meta{gap:12px!important}
+.opportunity-meta div{
+  padding:12px 13px!important;
+  border:1px solid color-mix(in srgb,var(--app-line) 70%,transparent)!important;
+  border-radius:12px!important;
+  background:var(--app-surface-2)!important;
+}
+.opportunity-meta span{text-transform:none!important;letter-spacing:0!important;font-size:10px!important}
+.opportunity-form{
+  margin-top:20px!important;
+  padding-top:20px!important;
+  border-top-color:color-mix(in srgb,var(--app-line) 65%,transparent)!important;
+}
+.opportunity-applied{
+  margin-top:16px;
+  padding:14px!important;
+  border:1px solid color-mix(in srgb,var(--app-line) 70%,transparent)!important;
+  border-radius:12px!important;
+  background:var(--app-surface-2)!important;
+}
+
+/* Status chips are softer visual cues, not labels stamped onto the interface. */
+.status-pill,.client-status,.portal-status,.payment-pill{
+  padding:6px 10px!important;
+  border-radius:999px!important;
+  border:1px solid color-mix(in srgb,currentColor 14%,transparent)!important;
+}
+
+@media(max-width:900px){
+  .admin-workspace,.client-workspace,.portal-workspace{padding-top:24px!important;padding-bottom:40px!important}
+  .campaign-card,.opportunity-card{padding:21px!important}
+  .opportunities-admin-grid,.opportunity-admin-main{gap:16px!important}
+}
+
+@media(max-width:700px){
+  .admin-workspace,.client-workspace,.portal-workspace{padding-top:20px!important}
+  .admin-top,.client-top,.portal-top,.admin-page-head{margin-bottom:22px!important}
+  .admin-shell .ops-kpis,.admin-stats,.client-stats,.portal-stats,.workspace-kpis{gap:10px!important}
+  .admin-shell .ops-kpis a{min-height:96px!important;padding:18px!important}
+  .campaign-card,.opportunity-card{border-radius:16px!important;padding:18px!important}
+  .workspace-panel,.ops-panel,.client-panel,.portal-panel{border-radius:16px!important}
+  .campaign-workspace .workspace-tabs{padding:7px!important;overflow-x:auto!important}
+  .application-card{margin:10px!important;padding:16px!important}
+  .opportunity-fields{padding:18px!important}
+  .opportunity-actions,.application-actions{gap:10px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .admin-shell *,.client-shell *,.portal-shell *{transition:none!important;scroll-behavior:auto!important}
+}
