@@ -1,7 +1,13 @@
+const optionalContactValue=(value?:string)=>{
+  const normalized=value?.trim()||"";
+  if(normalized==="+254700000000"||normalized==="254700000000") return "";
+  return normalized;
+};
+
 export const contact = {
-  email: process.env.NEXT_PUBLIC_VIRA_EMAIL || process.env.NEXT_PUBLIC_NOMA_EMAIL || "hello@viramedia.co.ke",
-  phone: process.env.NEXT_PUBLIC_VIRA_PHONE || process.env.NEXT_PUBLIC_NOMA_PHONE || "+254700000000",
-  whatsapp: process.env.NEXT_PUBLIC_VIRA_WHATSAPP || process.env.NEXT_PUBLIC_NOMA_WHATSAPP || "254700000000",
+  email: (process.env.NEXT_PUBLIC_VIRA_EMAIL || process.env.NEXT_PUBLIC_NOMA_EMAIL || "hello@viramedia.co.ke").trim(),
+  phone: optionalContactValue(process.env.NEXT_PUBLIC_VIRA_PHONE || process.env.NEXT_PUBLIC_NOMA_PHONE),
+  whatsapp: optionalContactValue(process.env.NEXT_PUBLIC_VIRA_WHATSAPP || process.env.NEXT_PUBLIC_NOMA_WHATSAPP),
 };
 
 export const workItems = [
